@@ -46,6 +46,7 @@ a.back{display:block;margin-top:14px;color:#888;font-size:13px}
     4. افتح التطبيق من الشاشة الرئيسية واضغط «السماح بالإشعارات»
   </div>
   <button id="btn" type="button">السماح بالإشعارات</button>
+  <button id="inst" type="button" style="display:none;margin-top:10px;background:#023e8a">📲 تثبيت تطبيق رفراف بلاج</button>
   <a class="back" id="back" href="#">الرجوع إلى الموقع</a>
   <div id="tok"></div>
 </div>
@@ -59,6 +60,17 @@ a.back{display:block;margin-top:14px;color:#888;font-size:13px}
   var h = document.getElementById('h'), p = document.getElementById('p'),
       btn = document.getElementById('btn'), back = document.getElementById('back'),
       tok = document.getElementById('tok');
+  // زر تثبيت التطبيق (Android / Chrome)
+  var inst = document.getElementById('inst'), deferred = null;
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault(); deferred = e; inst.style.display = 'block';
+  });
+  inst.onclick = function(){
+    if (!deferred) return;
+    deferred.prompt();
+    deferred.userChoice.then(function(){ deferred = null; inst.style.display = 'none'; });
+  };
+  window.addEventListener('appinstalled', function(){ inst.style.display = 'none'; });
   var qs = new URLSearchParams(location.search);
   var debug = qs.get('debug') === '1';
 
@@ -75,6 +87,8 @@ a.back{display:block;margin-top:14px;color:#888;font-size:13px}
     if (debug) return;
     if (standalone) {
       setTimeout(function(){ location.href = PN_CONFIG.siteUrl; }, 1500);
+    } else if (deferred) {
+      p.textContent = 'شكرًا! ثبّت التطبيق الآن لتصل إلى رفراف بلاج بضغطة واحدة 👇';
     } else if (window.opener) {
       try { window.opener.postMessage({ pn: 'ok' }, '*'); } catch(e){}
       setTimeout(function(){ window.close(); }, 1500);
