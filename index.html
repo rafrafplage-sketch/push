@@ -144,8 +144,23 @@ a.back{display:block;margin-top:14px;color:#888;font-size:13px}
 
   if (Notification.permission === 'granted') { getToken(); return; }
   if (Notification.permission === 'denied') {
-    fail('الإشعارات محظورة. افتح إعدادات الموقع في المتصفح (رمز القفل 🔒) واسمح بالإشعارات.');
-    btn.style.display = 'none';
+    h.textContent = 'الإشعارات محظورة 🔕';
+    p.textContent = 'سبق أن رفضت الإشعارات، والمتصفح لا يسمح بإعادة السؤال. فعّلها يدويًا بهذه الخطوات ثم اضغط «إعادة المحاولة»:';
+    var how = document.getElementById('ios');
+    how.innerHTML = /Android/i.test(navigator.userAgent)
+      ? '<b>على أندرويد (Chrome):</b><br>1. اضغط <b>⋮</b> أعلى الشاشة ← <b>فتح في Chrome</b> (إن ظهرت)<br>2. اضغط رمز <b>🔒</b> أو <b>⚙</b> بجانب العنوان ← <b>الأذونات</b><br>3. <b>الإشعارات</b> ← <b>السماح</b><br><small>أو: Chrome ← الإعدادات ← إعدادات المواقع ← الإشعارات ← push.rafrafplage.tn ← السماح</small>'
+      : '<b>على الكمبيوتر:</b><br>1. اضغط رمز <b>🔒</b> بجانب العنوان في الأعلى<br>2. <b>الإشعارات</b> ← <b>السماح</b><br>3. اضغط «إعادة المحاولة»';
+    how.style.display = 'block';
+    btn.textContent = '🔄 إعادة المحاولة';
+    btn.onclick = function(){
+      if (Notification.permission === 'granted') { btn.disabled = true; getToken(); }
+      else if (Notification.permission === 'default') { location.reload(); }
+      else { p.textContent = 'ما زالت الإشعارات محظورة. اتبع الخطوات أعلاه ثم أعد المحاولة.'; }
+    };
+    // يتحقق تلقائيًا عند الرجوع إلى الصفحة بعد تغيير الإعدادات
+    document.addEventListener('visibilitychange', function(){
+      if (!document.hidden && Notification.permission !== 'denied') location.reload();
+    });
     return;
   }
 
