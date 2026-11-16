@@ -179,7 +179,7 @@ a.back{display:block;margin-top:14px;color:#888;font-size:13px}
   }
 
   // داخل التطبيق المثبّت (PWA): نافذة أندرويد للإذن تظهر مباشرة عند الفتح أو عند أول لمسة
-  if (standalone && Notification.permission === 'default') {
+  if ((standalone || qs.get('auto') === '1') && Notification.permission === 'default') {
     var asked = false;
     var ask = function(){
       if (asked) return; asked = true;
