@@ -164,6 +164,23 @@ a.back{display:block;margin-top:14px;color:#888;font-size:13px}
     return;
   }
 
+  // داخل التطبيق المثبّت (PWA): نافذة أندرويد للإذن تظهر مباشرة عند الفتح أو عند أول لمسة
+  if (standalone && Notification.permission === 'default') {
+    var asked = false;
+    var ask = function(){
+      if (asked) return; asked = true;
+      btn.disabled = true;
+      Notification.requestPermission().then(function(perm){
+        if (perm === 'granted') getToken();
+        else if (perm === 'default') { asked = false; btn.disabled = false; }
+        else fail('لم يتم السماح بالإشعارات.');
+      });
+    };
+    setTimeout(ask, 600);
+    document.addEventListener('touchend', ask, { once: true });
+    document.addEventListener('click', ask, { once: true });
+  }
+
   btn.onclick = function(){
     btn.disabled = true;
     Notification.requestPermission().then(function(perm){
