@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>تفعيل الإشعارات</title>
+<link rel="icon" href="/icon.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="رفراف بلاج">
+<meta name="theme-color" content="#0077b6">
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+  font-family:Tahoma,Arial,sans-serif;background:#f4f4f4;color:#222;padding:20px}
+.box{width:100%;max-width:380px;background:#fff;border-radius:16px;padding:28px 22px;text-align:center;
+  box-shadow:0 8px 30px rgba(0,0,0,.12)}
+.ic{width:70px;height:70px;margin:0 auto 14px;border-radius:50%;background:#0077b6;display:flex;align-items:center;justify-content:center}
+.ic svg{width:36px;height:36px;fill:#fff}
+h1{font-size:20px;margin:0 0 8px}
+p{font-size:14px;color:#666;line-height:1.7;margin:0 0 18px}
+button{width:100%;padding:13px;border:0;border-radius:10px;background:#0077b6;color:#fff;font-size:16px;
+  font-family:inherit;cursor:pointer}
+button:disabled{opacity:.6}
+a.back{display:block;margin-top:14px;color:#888;font-size:13px}
+.ios{display:none;text-align:right;font-size:14px;line-height:2;margin:0 0 16px;padding:12px;background:#eef7fc;border-radius:10px}
+.ios b{color:#0077b6}
+#tok{display:none;margin-top:14px;font-size:11px;word-break:break-all;background:#f6f6f6;padding:8px;border-radius:8px;text-align:left;direction:ltr}
+@media (prefers-color-scheme:dark){
+  .ios{background:#14232e}
+  body{background:#121212;color:#eee}.box{background:#1e1e1e}p{color:#aaa}#tok{background:#2a2a2a}
+}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22zm7-6V11a7 7 0 0 0-5.5-6.84V3.5a1.5 1.5 0 0 0-3 0v.66A7 7 0 0 0 5 11v5l-2 2v1h18v-1z"/></svg></div>
+  <h1 id="h">فعّل الإشعارات 🔔</h1>
+  <p id="p">اضغط على الزر ثم اختر «السماح» لتصلك آخر أخبار رفراف، الطقس، كراء المنازل وبيع الأراضي.</p>
+  <div class="ios" id="ios">
+    <b>على الآيفون اتبع هذه الخطوات:</b><br>
+    1. افتح هذه الصفحة في <b>Safari</b><br>
+    2. اضغط زر المشاركة <b>⎋</b> في الأسفل<br>
+    3. اختر <b>«إضافة إلى الشاشة الرئيسية»</b> ثم <b>إضافة</b><br>
+    4. افتح التطبيق من الشاشة الرئيسية واضغط «السماح بالإشعارات»
+  </div>
+  <button id="btn" type="button">السماح بالإشعارات</button>
+  <a class="back" id="back" href="#">الرجوع إلى الموقع</a>
+  <div id="tok"></div>
+</div>
+
+<script src="/config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+(function(){
+  var h = document.getElementById('h'), p = document.getElementById('p'),
+      btn = document.getElementById('btn'), back = document.getElementById('back'),
+      tok = document.getElementById('tok');
+  var qs = new URLSearchParams(location.search);
+  var debug = qs.get('debug') === '1';
+
+  // رابط الرجوع: فقط إلى موقعك الأصلي
+  var from = qs.get('from') || PN_CONFIG.siteUrl;
+  try { if (new URL(from).hostname.replace(/^www\./,'') !== new URL(PN_CONFIG.siteUrl).hostname.replace(/^www\./,'')) from = PN_CONFIG.siteUrl; }
+  catch(e){ from = PN_CONFIG.siteUrl; }
+  back.href = from;
+
+  function done(){
+    h.textContent = 'تم تفعيل الإشعارات ✅';
+    p.textContent = 'شكرًا! ستصلك الإشعارات حتى عندما يكون الموقع مغلقًا.';
+    btn.style.display = 'none';
+    if (debug) return;
+    if (standalone) {
+      setTimeout(function(){ location.href = PN_CONFIG.siteUrl; }, 1500);
+    } else if (window.opener) {
+      try { window.opener.postMessage({ pn: 'ok' }, '*'); } catch(e){}
+      setTimeout(function(){ window.close(); }, 1500);
+    } else {
+      setTimeout(function(){ location.href = from.split('#')[0] + '#pn-ok'; }, 1500);
+    }
+  }
+
+  function fail(msg){
+    h.textContent = 'تعذّر التفعيل';
+    p.textContent = msg;
+    btn.disabled = false;
+  }
+
+  var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var standalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+
+  if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
+    if (isIOS && !standalone) {
+      h.textContent = 'إشعارات رفراف بلاج على الآيفون 🔔';
+      p.textContent = 'آبل تسمح بالإشعارات فقط بعد إضافة الصفحة إلى الشاشة الرئيسية (iOS 16.4 أو أحدث).';
+      document.getElementById('ios').style.display = 'block';
+    } else {
+      fail(isIOS ? 'حدّث الآيفون إلى iOS 16.4 أو أحدث لتفعيل الإشعارات.' : 'متصفحك لا يدعم الإشعارات. جرّب Chrome.');
+    }
+    btn.style.display = 'none';
+    return;
+  }
+
+  firebase.initializeApp(PN_CONFIG.firebase);
+  var messaging = firebase.messaging();
+  var analytics = null;
+  try { analytics = firebase.analytics(); } catch(e) {}
+
+  // تسجيل مشترك جديد في Analytics مرة واحدة لكل جهاز
+  function track(t){
+    var old = null, saved = null;
+    try { old = localStorage.getItem('pn_tok'); saved = localStorage.getItem('pn_fs'); localStorage.setItem('pn_tok', t); } catch(e) {}
+    var platform = isIOS ? 'ios' : (/Android/i.test(navigator.userAgent) ? 'android' : 'desktop');
+    if (analytics && old !== t) analytics.logEvent(old ? 'push_resubscribe' : 'push_subscribe', { platform: platform });
+    if (saved === t) return;
+    // حفظ المشترك في Firestore (لوحة الأدمن)
+    try {
+      firebase.firestore().collection('subscribers').doc(t).set({
+        created: firebase.firestore.FieldValue.serverTimestamp(),
+        platform: platform,
+        lang: (navigator.language || '').slice(0, 10)
+      }).then(function(){ try{ localStorage.setItem('pn_fs', t); }catch(e){} })
+        .catch(function(e){
+          console.log('[subscribers]', e.code);
+          if (e.code === 'permission-denied') { try{ localStorage.setItem('pn_fs', t); }catch(x){} } // موجود مسبقًا
+        });
+    } catch(e) {}
+  }
+
+  function getToken(){
+    return navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' })
+      .then(function(reg){ return messaging.getToken({ vapidKey: PN_CONFIG.vapidKey, serviceWorkerRegistration: reg }); })
+      .then(function(t){
+        if (!t) throw new Error('no token');
+        if (debug){ tok.style.display = 'block'; tok.textContent = t; }
+        track(t);
+        setTimeout(done, 400);
+      })
+      .catch(function(e){ console.log(e); fail('حدث خطأ، حاول مرة أخرى.'); });
+  }
+
+  if (Notification.permission === 'granted') { getToken(); return; }
+  if (Notification.permission === 'denied') {
+    fail('الإشعارات محظورة. افتح إعدادات الموقع في المتصفح (رمز القفل 🔒) واسمح بالإشعارات.');
+    btn.style.display = 'none';
+    return;
+  }
+
+  btn.onclick = function(){
+    btn.disabled = true;
+    Notification.requestPermission().then(function(perm){
+      if (perm === 'granted') getToken();
+      else fail('لم يتم السماح بالإشعارات.');
+    });
+  };
+})();
+</script>
+</body>
+</html>

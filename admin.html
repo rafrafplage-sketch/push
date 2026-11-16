@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>لوحة الأدمن - إشعارات رفراف بلاج</title>
+<link rel="icon" href="/icon.png">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Tahoma,Arial,sans-serif;background:#f4f5f7;color:#222;padding:20px}
+.wrap{max-width:760px;margin:auto}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:10px;flex-wrap:wrap}
+h1{font-size:22px;margin:0}
+.btn{padding:10px 16px;border:0;border-radius:10px;font-family:inherit;font-size:14px;cursor:pointer;text-decoration:none;display:inline-block}
+.red{background:#0077b6;color:#fff}.gray{background:#e4e6ea;color:#333}
+.card{background:#fff;border-radius:14px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,.06);margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.stat{background:#fff;border-radius:14px;padding:16px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.stat .n{font-size:30px;font-weight:bold;color:#0077b6;margin:6px 0}
+.stat .l{font-size:13px;color:#777}
+.stat.big{grid-column:1/-1}.stat.big .n{font-size:46px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:9px 6px;border-bottom:1px solid #eee;text-align:right}
+th{color:#777;font-weight:normal}
+.tag{padding:2px 8px;border-radius:20px;font-size:12px;background:#eee}
+.tag.android{background:#e8f5e9;color:#2e7d32}.tag.ios{background:#e3f2fd;color:#1565c0}.tag.desktop{background:#fff3e0;color:#e65100}
+#login{text-align:center;padding:40px 20px}
+#login p{color:#777}
+#msg{color:#0077b6;margin-top:12px;font-size:14px}
+.hide{display:none}
+label{display:block;margin:12px 0 5px;font-size:13px;font-weight:bold}
+input,textarea{width:100%;padding:10px;border:1px solid #ddd;border-radius:10px;font-family:inherit;font-size:14px;background:transparent;color:inherit}
+textarea{min-height:70px;resize:vertical}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:560px){.row2{grid-template-columns:1fr}}
+#send{width:100%;margin-top:16px;padding:13px;font-size:16px}
+#send:disabled{opacity:.6}
+.bar{height:8px;background:#eee;border-radius:8px;overflow:hidden;margin-top:12px;display:none}
+.bar i{display:block;height:100%;width:0;background:#0077b6;transition:width .2s}
+#status{margin-top:10px;font-size:14px;text-align:center}
+.preview{display:flex;gap:10px;align-items:center;background:#f4f5f7;border-radius:12px;padding:10px;margin-top:14px}
+.preview img{width:40px;height:40px;border-radius:8px}
+.preview b{display:block;font-size:14px}.preview span{font-size:12px;color:#777}
+@media (prefers-color-scheme:dark){
+  body{background:#121212;color:#eee}.card,.stat{background:#1e1e1e}
+  th,td{border-color:#2c2c2c}input,textarea{border-color:#333}.preview{background:#2a2a2a}.bar{background:#333}.gray{background:#333;color:#ddd}.tag{background:#333}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div id="login" class="card">
+    <h1>🔔 لوحة الأدمن</h1>
+    <p>سجّل الدخول بحساب Google الخاص بالأدمن</p>
+    <button class="btn red" id="signin">تسجيل الدخول بـ Google</button>
+    <div id="msg"></div>
+  </div>
+
+  <div id="panel" class="hide">
+    <header>
+      <h1>🔔 مشتركو الإشعارات</h1>
+      <div>
+        <a class="btn red" href="#compose">✉️ إرسال إشعار</a>
+        <button class="btn gray" id="refresh">تحديث</button>
+        <button class="btn gray" id="signout">خروج</button>
+      </div>
+    </header>
+
+    <div class="card" id="compose">
+      <b>✉️ إرسال إشعار لكل المشتركين</b>
+      <label>العنوان *</label>
+      <input id="f-title" maxlength="80" placeholder="🌊 خبر جديد من رفراف">
+      <label>النص</label>
+      <textarea id="f-body" maxlength="200" placeholder="اضغط لقراءة التفاصيل"></textarea>
+      <div class="row2">
+        <div><label>الرابط عند الضغط</label><input id="f-url" dir="ltr" placeholder="https://www.rafrafplage.tn/..."></div>
+        <div><label>صورة كبيرة (اختياري)</label><input id="f-img" dir="ltr" placeholder="https://...jpg"></div>
+      </div>
+      <div class="preview"><img src="/icon.png" alt=""><div><b id="p-title">العنوان</b><span id="p-body">النص</span></div></div>
+      <button class="btn red" id="send">إرسال الآن</button>
+      <div class="bar" id="bar"><i id="bar-i"></i></div>
+      <div id="status"></div>
+    </div>
+
+    <div class="grid">
+      <div class="stat big"><div class="l">إجمالي المشتركين</div><div class="n" id="total">…</div></div>
+      <div class="stat"><div class="l">اليوم</div><div class="n" id="today">…</div></div>
+      <div class="stat"><div class="l">آخر 7 أيام</div><div class="n" id="week">…</div></div>
+      <div class="stat"><div class="l">آخر 30 يومًا</div><div class="n" id="month">…</div></div>
+      <div class="stat"><div class="l">أندرويد</div><div class="n" id="android">…</div></div>
+      <div class="stat"><div class="l">آيفون</div><div class="n" id="ios">…</div></div>
+      <div class="stat"><div class="l">كمبيوتر</div><div class="n" id="desktop">…</div></div>
+    </div>
+
+    <div class="card">
+      <b>آخر 30 مشتركًا</b>
+      <table>
+        <thead><tr><th>التاريخ</th><th>الجهاز</th><th>اللغة</th></tr></thead>
+        <tbody id="rows"><tr><td colspan="3">جاري التحميل...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script src="/config.js"></script>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getFirestore, collection, query, where, orderBy, limit, getDocs, getCountFromServer, Timestamp, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+const app = initializeApp(PN_CONFIG.firebase);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const subs = collection(db, 'subscribers');
+const $ = (id) => document.getElementById(id);
+
+const PLAT = { android: 'أندرويد', ios: 'آيفون', desktop: 'كمبيوتر' };
+
+async function count(q) {
+  const snap = await getCountFromServer(q);
+  return snap.data().count;
+}
+
+function since(days) {
+  const d = new Date();
+  if (days === 0) d.setHours(0, 0, 0, 0); else d.setDate(d.getDate() - days);
+  return Timestamp.fromDate(d);
+}
+
+async function load() {
+  try {
+    const [total, today, week, month, an, io, de] = await Promise.all([
+      count(subs),
+      count(query(subs, where('created', '>=', since(0)))),
+      count(query(subs, where('created', '>=', since(7)))),
+      count(query(subs, where('created', '>=', since(30)))),
+      count(query(subs, where('platform', '==', 'android'))),
+      count(query(subs, where('platform', '==', 'ios'))),
+      count(query(subs, where('platform', '==', 'desktop')))
+    ]);
+    const fmt = (n) => n.toLocaleString('ar-TN');
+    $('total').textContent = fmt(total); $('today').textContent = fmt(today);
+    $('week').textContent = fmt(week);   $('month').textContent = fmt(month);
+    $('android').textContent = fmt(an);  $('ios').textContent = fmt(io); $('desktop').textContent = fmt(de);
+
+    const last = await getDocs(query(subs, orderBy('created', 'desc'), limit(30)));
+    let html = '';
+    last.forEach((doc) => {
+      const d = doc.data();
+      const date = d.created ? d.created.toDate().toLocaleString('ar-TN', { dateStyle: 'short', timeStyle: 'short' }) : '-';
+      const p = d.platform || '-';
+      html += `<tr><td>${date}</td><td><span class="tag ${p}">${PLAT[p] || p}</span></td><td>${(d.lang || '-').replace(/</g, '')}</td></tr>`;
+    });
+    $('rows').innerHTML = html || '<tr><td colspan="3">لا يوجد مشتركون بعد</td></tr>';
+  } catch (e) {
+    console.log(e);
+    if (e.code === 'permission-denied') {
+      await signOut(auth);
+      $('msg').textContent = 'هذا الحساب ليس حساب الأدمن.';
+    } else {
+      $('rows').innerHTML = '<tr><td colspan="3">خطأ: ' + (e.code || e.message) + '</td></tr>';
+    }
+  }
+}
+
+// ---------- تسجيل الدخول مع صلاحية الإرسال ----------
+const SCOPE = 'https://www.googleapis.com/auth/firebase.messaging';
+function saveToken(result) {
+  const cred = GoogleAuthProvider.credentialFromResult(result);
+  if (cred && cred.accessToken) {
+    try { sessionStorage.setItem('fcm_at', JSON.stringify({ t: cred.accessToken, exp: Date.now() + 55 * 60000 })); } catch (e) {}
+  }
+}
+function getSavedToken() {
+  try { const o = JSON.parse(sessionStorage.getItem('fcm_at') || 'null'); if (o && o.exp > Date.now()) return o.t; } catch (e) {}
+  return null;
+}
+async function googleLogin() {
+  const p = new GoogleAuthProvider();
+  p.addScope(SCOPE);
+  p.setCustomParameters({ prompt: 'select_account' });
+  const r = await signInWithPopup(auth, p);
+  saveToken(r);
+  return r;
+}
+$('signin').onclick = () => {
+  $('msg').textContent = '';
+  googleLogin().catch((e) => { $('msg').textContent = 'تعذّر تسجيل الدخول: ' + e.code; });
+};
+
+// ---------- الإرسال ----------
+const esc = (t) => String(t).replace(/[<>&"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c]));
+['f-title', 'f-body'].forEach((id) => $(id).addEventListener('input', () => {
+  $('p-title').textContent = $('f-title').value || 'العنوان';
+  $('p-body').textContent = $('f-body').value || 'النص';
+}));
+
+function status(t, ok) { $('status').style.color = ok === false ? '#0077b6' : ok ? '#2e7d32' : ''; $('status').textContent = t; }
+
+async function sendOne(accessToken, token, msg) {
+  const r = await fetch('https://fcm.googleapis.com/v1/projects/' + PN_CONFIG.firebase.projectId + '/messages:send', {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: Object.assign({ token: token }, msg) })
+  });
+  if (r.ok) return 'ok';
+  let err = {};
+  try { err = await r.json(); } catch (e) {}
+  const code = (err.error && err.error.details && err.error.details[0] && err.error.details[0].errorCode) || (err.error && err.error.status) || r.status;
+  if (r.status === 401 || r.status === 403) throw { auth: true, code: code, msg: err.error && err.error.message };
+  return (code === 'UNREGISTERED' || code === 'INVALID_ARGUMENT' || r.status === 404) ? 'dead' : 'fail';
+}
+
+$('send').onclick = async () => {
+  const title = $('f-title').value.trim();
+  const body = $('f-body').value.trim();
+  let url = $('f-url').value.trim();
+  const image = $('f-img').value.trim();
+  if (!title) { status('اكتب العنوان أولًا', false); return; }
+  if (url && !/^https:\/\//.test(url)) { status('الرابط يجب أن يبدأ بـ https://', false); return; }
+  if (image && !/^https:\/\//.test(image)) { status('رابط الصورة يجب أن يبدأ بـ https://', false); return; }
+  if (!url) url = PN_CONFIG.siteUrl;
+
+  let at = getSavedToken();
+  if (!at) {
+    status('سجّل الدخول من جديد لتأكيد صلاحية الإرسال...');
+    try { await googleLogin(); at = getSavedToken(); } catch (e) { status('تم إلغاء تسجيل الدخول', false); return; }
+    if (!at) { status('لم يتم منح صلاحية الإرسال', false); return; }
+  }
+
+  const btn = $('send');
+  btn.disabled = true;
+  status('جاري جلب المشتركين...');
+  let tokens = [];
+  try {
+    const snap = await getDocs(subs);
+    snap.forEach((d) => tokens.push(d.id));
+  } catch (e) { status('خطأ في جلب المشتركين: ' + e.code, false); btn.disabled = false; return; }
+  if (!tokens.length) { status('لا يوجد مشتركون بعد', false); btn.disabled = false; return; }
+  if (!confirmBox(tokens.length)) { btn.disabled = false; status(''); return; }
+
+  const notification = { title: title, body: body };
+  if (image) notification.image = image;
+  const msg = {
+    notification: notification,
+    data: { url: url },
+    webpush: {
+      headers: { Urgency: 'high', TTL: '86400' },
+      notification: { icon: location.origin + '/icon.png', dir: 'rtl', lang: 'ar' },
+      fcm_options: { link: url }
+    }
+  };
+
+  let ok = 0, dead = 0, fail = 0, done = 0;
+  $('bar').style.display = 'block';
+  const queue = tokens.slice();
+  async function worker() {
+    while (queue.length) {
+      const t = queue.shift();
+      let res;
+      try { res = await sendOne(at, t, msg); }
+      catch (e) {
+        if (e.auth) { queue.length = 0; throw e; }
+        res = 'fail';
+      }
+      if (res === 'ok') ok++;
+      else if (res === 'dead') { dead++; deleteDoc(doc(db, 'subscribers', t)).catch(() => {}); }
+      else fail++;
+      done++;
+      $('bar-i').style.width = Math.round(done / tokens.length * 100) + '%';
+      status('جاري الإرسال... ' + done + ' / ' + tokens.length);
+    }
+  }
+  try {
+    await Promise.all(Array.from({ length: Math.min(10, tokens.length) }, worker));
+    status('✅ تم الإرسال إلى ' + ok + ' مشترك' + (dead ? ' — حُذف ' + dead + ' مشترك ألغى الإشعارات' : '') + (fail ? ' — فشل ' + fail : ''), true);
+    if (dead) load();
+  } catch (e) {
+    try { sessionStorage.removeItem('fcm_at'); } catch (x) {}
+    status('❌ لا توجد صلاحية الإرسال (' + (e.code || '') + '). اضغط «إرسال الآن» مرة أخرى وسجّل الدخول.', false);
+  }
+  btn.disabled = false;
+};
+
+function confirmBox(n) {
+  return window.confirm('إرسال الإشعار إلى ' + n + ' مشترك؟');
+}
+$('signout').onclick = () => signOut(auth);
+$('refresh').onclick = load;
+
+onAuthStateChanged(auth, (user) => {
+  $('login').classList.toggle('hide', !!user);
+  $('panel').classList.toggle('hide', !user);
+  if (user) load();
+});
+</script>
+</body>
+</html>
