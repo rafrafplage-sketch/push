@@ -79,6 +79,7 @@ a.back{display:block;margin-top:14px;color:#888;font-size:13px}
   try { if (new URL(from).hostname.replace(/^www\./,'') !== new URL(PN_CONFIG.siteUrl).hostname.replace(/^www\./,'')) from = PN_CONFIG.siteUrl; }
   catch(e){ from = PN_CONFIG.siteUrl; }
   back.href = from;
+  back.onclick = function(e){ e.preventDefault(); location.replace(from); };
 
   function done(){
     h.textContent = 'تم تفعيل الإشعارات ✅';
@@ -86,14 +87,14 @@ a.back{display:block;margin-top:14px;color:#888;font-size:13px}
     btn.style.display = 'none';
     if (debug) return;
     if (standalone) {
-      setTimeout(function(){ location.href = PN_CONFIG.siteUrl; }, 1500);
+      setTimeout(function(){ location.replace(PN_CONFIG.siteUrl); }, 1500);
     } else if (deferred) {
       p.textContent = 'شكرًا! ثبّت التطبيق الآن لتصل إلى رفراف بلاج بضغطة واحدة 👇';
     } else if (window.opener) {
       try { window.opener.postMessage({ pn: 'ok' }, '*'); } catch(e){}
       setTimeout(function(){ window.close(); }, 1500);
     } else {
-      setTimeout(function(){ location.href = from.split('#')[0] + '#pn-ok'; }, 1500);
+      setTimeout(function(){ location.replace(from.split('#')[0]); }, 1500);
     }
   }
 
