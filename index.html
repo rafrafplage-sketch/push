@@ -31,6 +31,21 @@ a.back{display:block;margin-top:14px;color:#888;font-size:13px}
   .ios{background:#14232e}
   body{background:#121212;color:#eee}.box{background:#1e1e1e}p{color:#aaa}#tok{background:#2a2a2a}
 }
+
+.steps{display:none;text-align:right;margin:0 0 16px}
+.st{display:flex;gap:10px;align-items:center;background:#f6f8fa;border-radius:12px;padding:10px;margin-bottom:8px}
+.st .n{flex:0 0 26px;height:26px;border-radius:50%;background:#0077b6;color:#fff;font-weight:bold;display:flex;align-items:center;justify-content:center;font-size:14px}
+.st .t{flex:1;font-size:13.5px;line-height:1.6}
+.st .t b{color:#0077b6}
+.mock{flex:0 0 92px;background:#fff;border:1px solid #ddd;border-radius:8px;padding:6px;font-size:9px;color:#333;direction:ltr;text-align:left;line-height:1.4}
+.mock .row{display:flex;justify-content:space-between;align-items:center;gap:4px}
+.sw{width:22px;height:12px;border-radius:12px;background:#bbb;position:relative;flex:0 0 22px;animation:swb 2s infinite}
+.sw:after{content:'';position:absolute;top:2px;left:2px;width:8px;height:8px;border-radius:50%;background:#fff;animation:swk 2s infinite}
+@keyframes swb{0%,40%{background:#bbb}60%,100%{background:#2f6fe4}}
+@keyframes swk{0%,40%{left:2px}60%,100%{left:12px}}
+.mock .hl{background:#e8f0fe;border-radius:4px;padding:1px 3px;font-weight:bold}
+.steps h3{font-size:14px;margin:12px 0 8px;color:#555}
+@media (prefers-color-scheme:dark){.st{background:#2a2a2a}.mock{background:#1e1e1e;border-color:#444;color:#ddd}.mock .hl{background:#23395d}}
 </style>
 </head>
 <body>
@@ -45,6 +60,7 @@ a.back{display:block;margin-top:14px;color:#888;font-size:13px}
     3. اختر <b>«إضافة إلى الشاشة الرئيسية»</b> ثم <b>إضافة</b><br>
     4. افتح التطبيق من الشاشة الرئيسية واضغط «السماح بالإشعارات»
   </div>
+  <div class="steps" id="steps"></div>
   <button id="btn" type="button">السماح بالإشعارات</button>
   <button id="inst" type="button" style="display:none;margin-top:10px;background:#023e8a">📲 تثبيت تطبيق رفراف بلاج</button>
   <a class="back" id="back" href="#">الرجوع إلى الموقع</a>
@@ -159,20 +175,28 @@ a.back{display:block;margin-top:14px;color:#888;font-size:13px}
 
   if (Notification.permission === 'granted') { getToken(); return; }
   if (Notification.permission === 'denied') {
-    h.textContent = 'الإشعارات محظورة 🔕';
-    p.textContent = 'سبق أن رفضت الإشعارات، والمتصفح لا يسمح بإعادة السؤال. فعّلها يدويًا بهذه الخطوات ثم اضغط «إعادة المحاولة»:';
-    var how = document.getElementById('ios');
-    how.innerHTML = /Android/i.test(navigator.userAgent)
-      ? '<b>على أندرويد (Chrome):</b><br>1. اضغط <b>⋮</b> أعلى الشاشة ← <b>فتح في Chrome</b> (إن ظهرت)<br>2. اضغط رمز <b>🔒</b> أو <b>⚙</b> بجانب العنوان ← <b>الأذونات</b><br>3. <b>الإشعارات</b> ← <b>السماح</b><br><small>أو: Chrome ← الإعدادات ← إعدادات المواقع ← الإشعارات ← push.rafrafplage.tn ← السماح</small>'
-      : '<b>على الكمبيوتر:</b><br>1. اضغط رمز <b>🔒</b> بجانب العنوان في الأعلى<br>2. <b>الإشعارات</b> ← <b>السماح</b><br>3. اضغط «إعادة المحاولة»';
-    how.style.display = 'block';
+    h.textContent = 'الإشعارات مغلقة 🔕';
+    p.textContent = 'لتصلك إشعارات رفراف بلاج فعّلها بنفسك في هاتفك (دقيقة واحدة)، ثم اضغط «إعادة المحاولة»:';
+    var andr = /Android/i.test(navigator.userAgent);
+    var steps = document.getElementById('steps');
+    function st(n, t, mock){ return '<div class="st"><div class="n">'+n+'</div><div class="t">'+t+'</div>'+(mock?'<div class="mock">'+mock+'</div>':'')+'</div>'; }
+    steps.innerHTML = andr
+      ? '<h3>① إشعارات Chrome في الهاتف</h3>' +
+        st(1, 'افتح <b>الإعدادات</b> ← <b>التطبيقات</b> ← <b>Chrome</b>', '⚙ Paramètres<br>› Applications<br>› <span class="hl">Chrome</span>') +
+        st(2, 'اضغط <b>الإشعارات</b> وفعّل الزر 🔵', '<div class="row">Autorisation des notifications<span class="sw"></span></div>') +
+        '<h3>② السماح للموقع في Chrome</h3>' +
+        st(3, 'في Chrome: <b>⋮</b> ← <b>الإعدادات</b> ← <b>إعدادات المواقع</b> ← <b>الإشعارات</b>', '⋮ Paramètres<br>› Paramètres des sites<br>› <span class="hl">Notifications</span>') +
+        st(4, 'في قائمة <b>المحظورة</b> اضغط <b>' + location.hostname + '</b> ← <b>السماح</b>', '<div class="row">' + location.hostname + '</div><div class="row"><span class="hl">Autoriser</span></div>')
+      : st(1, 'اضغط رمز <b>🔒</b> بجانب العنوان في الأعلى', '🔒 ' + location.hostname) +
+        st(2, 'بجانب <b>الإشعارات</b> اختر <b>السماح</b>', '<div class="row">Notifications<span class="sw"></span></div>');
+    steps.style.display = 'block';
     btn.textContent = '🔄 إعادة المحاولة';
     btn.onclick = function(){
-      if (Notification.permission === 'granted') { btn.disabled = true; getToken(); }
+      if (Notification.permission === 'granted') { btn.disabled = true; steps.style.display = 'none'; getToken(); }
       else if (Notification.permission === 'default') { location.reload(); }
-      else { p.textContent = 'ما زالت الإشعارات محظورة. اتبع الخطوات أعلاه ثم أعد المحاولة.'; }
+      else { p.textContent = 'ما زالت الإشعارات مغلقة. اتبع الخطوات ثم اضغط «إعادة المحاولة».'; }
     };
-    // يتحقق تلقائيًا عند الرجوع إلى الصفحة بعد تغيير الإعدادات
+    // يعيد المحاولة وحده عند الرجوع من الإعدادات
     document.addEventListener('visibilitychange', function(){
       if (!document.hidden && Notification.permission !== 'denied') location.reload();
     });
