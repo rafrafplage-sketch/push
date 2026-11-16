@@ -69,6 +69,7 @@ textarea{min-height:70px;resize:vertical}
       <h1>🔔 مشتركو الإشعارات</h1>
       <div>
         <a class="btn red" href="#compose">✉️ إرسال إشعار</a>
+        <button class="btn gray" id="clean">🧹 تنظيف</button>
         <button class="btn gray" id="refresh">تحديث</button>
         <button class="btn gray" id="signout">خروج</button>
       </div>
@@ -289,11 +290,11 @@ document.addEventListener('paste', (e) => {
 
 function status(t, ok) { $('status').style.color = ok === false ? '#0077b6' : ok ? '#2e7d32' : ''; $('status').textContent = t; }
 
-async function sendOne(accessToken, token, msg) {
+async function sendOne(accessToken, token, msg, validateOnly) {
   const r = await fetch('https://fcm.googleapis.com/v1/projects/' + PN_CONFIG.firebase.projectId + '/messages:send', {
     method: 'POST',
     headers: { 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message: Object.assign({ token: token }, msg) })
+    body: JSON.stringify(Object.assign(validateOnly ? { validate_only: true } : {}, { message: Object.assign({ token: token }, msg) }))
   });
   if (r.ok) return 'ok';
   let err = {};
@@ -377,13 +378,43 @@ $('send').onclick = async () => {
 function confirmBox(n) {
   return window.confirm('إرسال الإشعار إلى ' + n + ' مشترك؟');
 }
+
+// ---------- تنظيف: حذف من ألغى الإشعارات (فحص بدون إرسال أي إشعار) ----------
+async function cleanup(silent) {
+  let at = getSavedToken();
+  if (!at) {
+    if (silent) return;
+    try { await googleLogin(); at = getSavedToken(); } catch (e) { return; }
+    if (!at) return;
+  }
+  const btn = $('clean');
+  btn.disabled = true; btn.textContent = '⏳ فحص...';
+  let tokens = [];
+  try { (await getDocs(subs)).forEach((d) => tokens.push(d.id)); } catch (e) { btn.disabled = false; btn.textContent = '🧹 تنظيف'; return; }
+  let dead = 0;
+  const queue = tokens.slice();
+  async function worker() {
+    while (queue.length) {
+      const t = queue.shift();
+      try {
+        const r = await sendOne(at, t, { data: { ping: '1' } }, true);
+        if (r === 'dead') { dead++; await deleteDoc(doc(db, 'subscribers', t)).catch(() => {}); }
+      } catch (e) { if (e.auth) { queue.length = 0; try { sessionStorage.removeItem('fcm_at'); } catch (x) {} } }
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(10, tokens.length || 1) }, worker));
+  btn.disabled = false; btn.textContent = '🧹 تنظيف';
+  if (dead) load();
+  if (!silent) status(dead ? '🧹 حُذف ' + dead + ' مشترك ألغى الإشعارات' : '✅ كل المشتركين نشطون', true);
+}
+$('clean').onclick = () => cleanup(false);
 $('signout').onclick = () => signOut(auth);
 $('refresh').onclick = load;
 
 onAuthStateChanged(auth, (user) => {
   $('login').classList.toggle('hide', !!user);
   $('panel').classList.toggle('hide', !user);
-  if (user) load();
+  if (user) { load(); cleanup(true); }
 });
 </script>
 </body>
