@@ -42,6 +42,12 @@ textarea{min-height:70px;resize:vertical}
 .preview{display:flex;gap:10px;align-items:center;background:#f4f5f7;border-radius:12px;padding:10px;margin-top:14px}
 .preview img{width:40px;height:40px;border-radius:8px}
 .preview b{display:block;font-size:14px}.preview span{font-size:12px;color:#777}
+.up{display:flex;gap:6px}.up input{flex:1}
+.upbtn{white-space:nowrap;padding:0 12px;border:1px dashed #0077b6;border-radius:10px;background:transparent;color:#0077b6;cursor:pointer;font-family:inherit;font-size:13px}
+.upbtn:disabled{opacity:.5}
+#p-img{display:none;width:100%;max-height:220px;object-fit:cover;border-radius:10px;margin-top:10px}
+.drop{outline:2px dashed #0077b6;outline-offset:4px}
+#key-link{font-size:11px;color:#888;cursor:pointer;margin-top:4px;display:inline-block}
 @media (prefers-color-scheme:dark){
   body{background:#121212;color:#eee}.card,.stat{background:#1e1e1e}
   th,td{border-color:#2c2c2c}input,textarea{border-color:#333}.preview{background:#2a2a2a}.bar{background:#333}.gray{background:#333;color:#ddd}.tag{background:#333}
@@ -76,9 +82,14 @@ textarea{min-height:70px;resize:vertical}
       <textarea id="f-body" maxlength="200" placeholder="اضغط لقراءة التفاصيل"></textarea>
       <div class="row2">
         <div><label>الرابط عند الضغط</label><input id="f-url" dir="ltr" placeholder="https://www.rafrafplage.tn/..."></div>
-        <div><label>صورة كبيرة (اختياري)</label><input id="f-img" dir="ltr" placeholder="https://...jpg"></div>
+        <div><label>صورة كبيرة (اختياري)</label>
+          <div class="up"><input id="f-img" dir="ltr" placeholder="https://...jpg أو ارفع صورة">
+          <button type="button" class="upbtn" id="up-btn">📷 رفع صورة</button></div>
+          <input type="file" id="up-file" accept="image/*" hidden>
+          <span id="key-link">🔑 تغيير مفتاح ImgBB</span></div>
       </div>
       <div class="preview"><img src="/icon.png" alt=""><div><b id="p-title">العنوان</b><span id="p-body">النص</span></div></div>
+      <img id="p-img" alt="">
       <button class="btn red" id="send">إرسال الآن</button>
       <div class="bar" id="bar"><i id="bar-i"></i></div>
       <div id="status"></div>
@@ -198,6 +209,60 @@ const esc = (t) => String(t).replace(/[<>&"]/g, (c) => ({ '<': '&lt;', '>': '&gt
   $('p-body').textContent = $('f-body').value || 'النص';
 }));
 
+
+// ---------- رفع الصور (ImgBB) ----------
+const IMGBB_KEY = 'imgbb_key';
+function imgbbKey(ask) {
+  let k = '';
+  try { k = localStorage.getItem(IMGBB_KEY) || ''; } catch (e) {}
+  if (!k || ask) {
+    k = (prompt('ضع مفتاح ImgBB API (مجاني من api.imgbb.com):', k) || '').trim();
+    if (k) try { localStorage.setItem(IMGBB_KEY, k); } catch (e) {}
+  }
+  return k;
+}
+function showImg() {
+  const u = $('f-img').value.trim();
+  $('p-img').style.display = /^https:\/\//.test(u) ? 'block' : 'none';
+  if (/^https:\/\//.test(u)) $('p-img').src = u;
+}
+async function uploadImage(file) {
+  if (!file || !/^image\//.test(file.type)) { status('اختر ملف صورة', false); return; }
+  if (file.size > 32 * 1024 * 1024) { status('الصورة أكبر من 32MB', false); return; }
+  const key = imgbbKey(false);
+  if (!key) { status('يلزم مفتاح ImgBB لرفع الصور', false); return; }
+  const btn = $('up-btn');
+  btn.disabled = true; btn.textContent = '⏳ جاري الرفع...';
+  status('جاري رفع الصورة...');
+  try {
+    const fd = new FormData();
+    fd.append('image', file);
+    const r = await fetch('https://api.imgbb.com/1/upload?key=' + encodeURIComponent(key), { method: 'POST', body: fd });
+    const j = await r.json();
+    if (!j.success) throw new Error((j.error && j.error.message) || ('HTTP ' + r.status));
+    $('f-img').value = j.data.url;
+    showImg();
+    status('✅ تم رفع الصورة', true);
+  } catch (e) {
+    status('❌ فشل رفع الصورة: ' + e.message, false);
+    if (/key/i.test(e.message)) try { localStorage.removeItem(IMGBB_KEY); } catch (x) {}
+  }
+  btn.disabled = false; btn.textContent = '📷 رفع صورة';
+}
+$('up-btn').onclick = () => $('up-file').click();
+$('up-file').onchange = (e) => { uploadImage(e.target.files[0]); e.target.value = ''; };
+$('key-link').onclick = () => imgbbKey(true);
+$('f-img').addEventListener('input', showImg);
+// سحب وإفلات أو لصق صورة (Ctrl+V) في بطاقة الإرسال
+const card = $('compose');
+card.addEventListener('dragover', (e) => { e.preventDefault(); card.classList.add('drop'); });
+card.addEventListener('dragleave', () => card.classList.remove('drop'));
+card.addEventListener('drop', (e) => { e.preventDefault(); card.classList.remove('drop'); if (e.dataTransfer.files[0]) uploadImage(e.dataTransfer.files[0]); });
+document.addEventListener('paste', (e) => {
+  const it = [...(e.clipboardData && e.clipboardData.items || [])].find((i) => i.type.startsWith('image/'));
+  if (it) { e.preventDefault(); uploadImage(it.getAsFile()); }
+});
+
 function status(t, ok) { $('status').style.color = ok === false ? '#0077b6' : ok ? '#2e7d32' : ''; $('status').textContent = t; }
 
 async function sendOne(accessToken, token, msg) {
@@ -249,7 +314,7 @@ $('send').onclick = async () => {
     data: { url: url },
     webpush: {
       headers: { Urgency: 'high', TTL: '86400' },
-      notification: { icon: location.origin + '/icon.png', dir: 'rtl', lang: 'ar' },
+      notification: { icon: location.origin + '/icon.png', badge: location.origin + '/badge.png', dir: 'rtl', lang: 'ar' },
       fcm_options: { link: url }
     }
   };
