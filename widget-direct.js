@@ -1,10 +1,10 @@
 /* ===== إشعارات رفراف بلاج — الإذن مباشرة في الموقع (بدون نافذة push.) =====
    يحتاج Cloudflare Worker الذي يقدّم /firebase-messaging-sw.js و /config.js على www.rafrafplage.tn
-   يعرض نافذة Chrome الأصلية فقط «السماح بالإشعارات» (بدون صندوق خاص بالموقع)
+   يعرض نافذة Chrome الأصلية + شاشة إرشاد عربية (سهم نحو «السماح» + لوحة في الأسفل) مثل kapitalis.com
    للتجربة: أضف ?rptest في آخر الرابط */
 (function(){
   var KEY = 'rp_push_state';
-    var FB = 'https://www.gstatic.com/firebasejs/10.12.2/';
+  var FB = 'https://www.gstatic.com/firebasejs/10.12.2/';
   var force = location.search.indexOf('rptest') !== -1;
 
   function get(){ try{ return JSON.parse(localStorage.getItem(KEY) || '{}'); }catch(e){ return {}; } }
@@ -44,6 +44,72 @@
     });
   }
 
+  /* ===== نصوص شاشة الإرشاد (عدّلها كما تريد) ===== */
+  var G_SITE    = 'www.rafrafplage.tn';
+  var G_TITLE   = 'كن أول من يعلم بآخر أخبار رفراف، الطقس، كراء المنازل وبيع الأراضي.';
+  var G_TIP     = 'اختفى الشريط؟ اضغط على الأيقونة بجانب عنوان الموقع في الأعلى للسماح بالإشعارات.';
+  var G_NOTE    = 'اضغط «السماح» لتصلك إشعاراتنا حتى والموقع مغلق. لإلغاء الاشتراك أوقفها من إعدادات الإشعارات في جهازك.';
+  var G_PRIVACY = '';   /* رابط سياسة الخصوصية (اتركه فارغاً لإخفائه) */
+
+  /* شاشة الإرشاد: تظهر ما دامت نافذة Chrome مفتوحة، وتختفي بعد الاختيار */
+  var guideEl = null;
+  function showGuide(onClose){
+    if (guideEl) return;
+    /* مكان زر «السماح» في شريط Chrome: يمين إذا كانت لغة الهاتف غير عربية، يسار إذا كانت عربية */
+    var left = /^(ar|fa|he|ur)/i.test(navigator.language || '');
+    var css = document.createElement('style');
+    css.id = 'rpgCss';
+    css.textContent =
+      '#rpg{position:fixed;inset:0;z-index:2147483646;direction:rtl;font-family:-apple-system,Roboto,"Segoe UI",Tahoma,Arial,sans-serif;opacity:0;transition:opacity .35s}' +
+      '#rpg.on{opacity:1}' +
+      '#rpg .dim{position:absolute;inset:0;background:rgba(40,40,46,.62)}' +
+      '#rpg .glow{position:absolute;top:-70px;' + (left ? 'left' : 'right') + ':-60px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(250,204,21,.55),rgba(250,204,21,0) 65%);animation:rpgP 1.6s ease-in-out infinite}' +
+      '#rpg .arr{position:absolute;top:70px;' + (left ? 'left' : 'right') + ':40px;width:180px;height:300px;' + (left ? 'transform:scaleX(-1);' : '') + '}' +
+      '#rpg .arr path.d{fill:none;stroke:#fff;stroke-width:6;stroke-linecap:round;stroke-dasharray:.1 16;animation:rpgD 1.2s linear infinite}' +
+      '#rpg .arr path.h{fill:none;stroke:#facc15;stroke-width:9;stroke-linecap:round;stroke-linejoin:round}' +
+      '#rpg .msg{position:absolute;top:385px;left:16px;right:16px;text-align:center;color:#fff;font-size:19px;line-height:1.6;text-shadow:0 1px 6px rgba(0,0,0,.5)}' +
+      '#rpg .msg b{color:#facc15}' +
+      '#rpg .sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;color:#111;border-radius:28px 28px 0 0;padding:22px 20px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -6px 30px rgba(0,0,0,.25);transform:translateY(100%);transition:transform .4s ease;max-width:640px;margin:0 auto}' +
+      '#rpg.on .sheet{transform:none}' +
+      '#rpg .site{font-size:14px;color:#6b7280;margin:0 0 6px}' +
+      '#rpg h3{margin:0 0 14px;font-size:21px;line-height:1.45;font-weight:800;color:#111}' +
+      '#rpg .tip{display:flex;align-items:center;gap:12px;background:#f1f4f9;border-radius:16px;padding:12px 14px;margin:0 0 12px}' +
+      '#rpg .tip i{flex:0 0 40px;height:40px;border-radius:50%;background:#2547d0;display:flex;align-items:center;justify-content:center}' +
+      '#rpg .tip i svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2}' +
+      '#rpg .tip span{font-size:14.5px;line-height:1.55;color:#1f2937}' +
+      '#rpg .note{font-size:12.5px;line-height:1.7;color:#6b7280;margin:0}' +
+      '#rpg .note a{color:#2547d0}' +
+      '#rpg .x{position:absolute;top:12px;left:14px;width:32px;height:32px;border:0;border-radius:50%;background:#f1f4f9;color:#555;font-size:18px;line-height:32px;cursor:pointer;padding:0}' +
+      '@keyframes rpgP{50%{transform:scale(1.12);opacity:.75}}' +
+      '@keyframes rpgD{to{stroke-dashoffset:-16.1}}' +
+      '@media (prefers-color-scheme:dark){#rpg .sheet{background:#1c1f26;color:#eee}#rpg h3{color:#f3f4f6}#rpg .tip{background:#262b35}#rpg .tip span{color:#e5e7eb}#rpg .x{background:#262b35;color:#ccc}}' +
+      '@media (max-height:640px){#rpg .arr{height:220px}#rpg .msg{top:300px;font-size:17px}}';
+    document.head.appendChild(css);
+
+    guideEl = document.createElement('div');
+    guideEl.id = 'rpg';
+    guideEl.innerHTML =
+      '<div class="dim"></div><div class="glow"></div>' +
+      '<svg class="arr" viewBox="0 0 180 300"><path class="d" d="M40 290 C 60 200, 150 170, 150 40"/><path class="h" d="M122 52 L150 22 L178 52"/></svg>' +
+      '<div class="msg">للسماح، اضغط على <b>«السماح»</b> في أعلى الشاشة</div>' +
+      '<div class="sheet"><button class="x" type="button" aria-label="إغلاق">✕</button>' +
+        '<p class="site">' + G_SITE + '</p>' +
+        '<h3>' + G_TITLE + '</h3>' +
+        '<div class="tip"><i><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></i><span>' + G_TIP + '</span></div>' +
+        '<p class="note">' + G_NOTE + (G_PRIVACY ? ' <a href="' + G_PRIVACY + '">سياسة الخصوصية</a>' : '') + '</p>' +
+      '</div>';
+    document.body.appendChild(guideEl);
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ if (guideEl) guideEl.className = 'on'; }); });
+    guideEl.querySelector('.x').onclick = function(){ hideGuide(); if (onClose) onClose(); };
+    guideEl.querySelector('.dim').onclick = function(){ hideGuide(); if (onClose) onClose(); };
+  }
+  function hideGuide(){
+    if (!guideEl) return;
+    var g = guideEl; guideEl = null;
+    g.className = '';
+    setTimeout(function(){ g.remove(); var c = document.getElementById('rpgCss'); if (c) c.remove(); }, 400);
+  }
+
   function toast(msg){
     var d = document.createElement('div');
     d.textContent = msg;
@@ -66,7 +132,7 @@
     var st = get();
     if (!force && st.later && Date.now() - st.later < 86400000) return; /* أُغلقت النافذة بدون اختيار → نعيد بعد يوم */
 
-    /* نافذة Chrome الأصلية فقط (بدون أي صندوق من الموقع) */
+    /* نافذة Chrome الأصلية + شاشة الإرشاد */
     var asked = false;
     function ask(){
       if (asked || Notification.permission !== 'default') return;
@@ -74,7 +140,10 @@
       off();
       loadLibs().catch(function(){}); /* تحميل مسبق */
       var p = Notification.requestPermission();
+      /* شاشة الإرشاد إذا بقيت نافذة Chrome مفتوحة (أو ظهرت كشريط صغير في الأعلى) */
+      var gT = setTimeout(function(){ if (Notification.permission === 'default') showGuide(function(){ save({ later: Date.now() }); }); }, 700);
       (p && p.then ? p : Promise.resolve(Notification.permission)).then(function(perm){
+        clearTimeout(gT); hideGuide();
         if (perm === 'granted') {
           save({ done: 1 });
           subscribe().then(function(){ toast('تم تفعيل الإشعارات ✅'); })
@@ -95,6 +164,7 @@
     setTimeout(ask, force ? 300 : 3000);
   }
 
+  window.rpShowGuide = showGuide; /* للمعاينة فقط */
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
   else start();
 })();
