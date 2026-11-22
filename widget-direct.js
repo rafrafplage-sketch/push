@@ -232,6 +232,7 @@
   }
 
   window.rpShowGuide = showGuide; /* للمعاينة فقط */
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
-  else start();
+  /* نبدأ فوراً (لا ننتظر تحميل كل سكربتات الصفحة والإعلانات) */
+  if (document.body) start();
+  else document.addEventListener('DOMContentLoaded', start);
 })();
