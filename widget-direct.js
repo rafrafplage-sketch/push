@@ -120,6 +120,43 @@
     setTimeout(function(){ g.remove(); var c = document.getElementById('rpgCss'); if (c) c.remove(); }, 400);
   }
 
+  function isIOS(){ var ua = navigator.userAgent; return /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
+  function isSafari(){ var ua = navigator.userAgent; return isIOS() || (/Safari/.test(ua) && !/Chrome|Chromium|CriOS|Edg|OPR|Android/.test(ua)); }
+
+  /* لوحة الآيفون: شرح التثبيت على الشاشة الرئيسية لتفعيل الإشعارات (مرة كل 7 أيام) */
+  function iosSheet(){
+    var k = 'rp_ios_tip', last = 0;
+    try{ last = +localStorage.getItem(k) || 0; }catch(e){}
+    if (!force && Date.now() - last < 7 * 864e5) return;
+    setTimeout(function(){
+      var c = document.createElement('style');
+      c.textContent =
+        '#rpIos{position:fixed;left:10px;right:10px;bottom:-400px;max-width:460px;margin:0 auto;z-index:2147483646;direction:rtl;background:#fff;color:#111;' +
+        'border-radius:24px;box-shadow:0 10px 40px rgba(0,0,0,.28);padding:20px 18px calc(16px + env(safe-area-inset-bottom));font-family:-apple-system,"SF Pro Text",Tahoma,Arial,sans-serif;transition:bottom .4s ease}' +
+        '#rpIos.on{bottom:10px}' +
+        '#rpIos h4{margin:0 0 6px;font-size:18px;font-weight:800;display:flex;align-items:center;gap:8px}' +
+        '#rpIos p{margin:0 0 12px;font-size:14px;color:#555;line-height:1.6}' +
+        '#rpIos ol{margin:0;padding:0 20px 0 0;font-size:15px;line-height:2}' +
+        '#rpIos .k{display:inline-block;padding:0 6px;border-radius:6px;background:#eaf2fb;color:#0a66c2;font-weight:700}' +
+        '#rpIos .x{position:absolute;top:10px;left:12px;width:30px;height:30px;border:0;border-radius:50%;background:#f1f3f6;color:#555;font-size:15px;padding:0;cursor:pointer}' +
+        '@media (prefers-color-scheme:dark){#rpIos{background:#1f232b;color:#eee}#rpIos p{color:#aaa}#rpIos .k{background:#263445;color:#7cc4ff}#rpIos .x{background:#2a2f39;color:#ccc}}';
+      document.head.appendChild(c);
+      var d = document.createElement('div'); d.id = 'rpIos';
+      d.innerHTML = '<button class="x" type="button" aria-label="إغلاق">✕</button>' +
+        '<h4>🔔 إشعارات رفراف على الآيفون</h4>' +
+        '<p>آبل تسمح بالإشعارات فقط بعد إضافة الموقع إلى الشاشة الرئيسية:</p>' +
+        '<ol><li>اضغط زر المشاركة <span class="k">⎋</span> في الأسفل</li>' +
+        '<li>اختر <span class="k">إضافة إلى الشاشة الرئيسية</span></li>' +
+        '<li>افتح <b>رفراف</b> من الشاشة الرئيسية واضغط <span class="k">السماح</span></li></ol>';
+      document.body.appendChild(d);
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ d.className = 'on'; }); });
+      d.querySelector('.x').onclick = function(){
+        try{ localStorage.setItem(k, String(Date.now())); }catch(e){}
+        d.className = ''; setTimeout(function(){ d.remove(); }, 450);
+      };
+    }, force ? 500 : 3000);
+  }
+
   function toast(msg){
     var d = document.createElement('div');
     d.textContent = msg;
@@ -128,8 +165,8 @@
   }
 
   function start(){
-    /* لا دعم (مثلاً آيفون بدون تثبيت الموقع) → لا شيء */
-    if (!supported()) return;
+    /* الآيفون في Safari العادي: Apple لا تسمح بالإشعارات إلا بعد تثبيت الموقع على الشاشة الرئيسية */
+    if (!supported()) { if (isIOS()) iosSheet(); return; }
 
     /* سبق السماح: نتأكد مرة واحدة أن الرمز محفوظ */
     if (Notification.permission === 'granted') {
@@ -189,8 +226,9 @@
     /* أول لمسة/نقرة في الصفحة → النافذة (أضمن طريقة في Chrome) */
     document.addEventListener('click', ask, true);
     document.addEventListener('touchend', ask, true);
-    /* وإن لم يلمس الزائر شيئاً: نطلب بعد 3 ثوانٍ مثل جوهرة FM */
-    setTimeout(ask, force ? 300 : 3000);
+    /* وإن لم يلمس الزائر شيئاً: نطلب بعد 3 ثوانٍ مثل جوهرة FM
+       (Safari على الآيفون/Mac يرفض الطلب بدون لمسة، فننتظر اللمسة فقط) */
+    if (!isSafari()) setTimeout(ask, force ? 300 : 3000);
   }
 
   window.rpShowGuide = showGuide; /* للمعاينة فقط */
