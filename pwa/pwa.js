@@ -66,7 +66,7 @@
         deferred.prompt();
         deferred.userChoice.then(function(r){ save(r && r.outcome === 'accepted' ? { done: 1 } : { later: Date.now() }); deferred = null; });
       });
-    } else if (isSafari) { /* الآيفون */
+    } else if (isSafari && !document.getElementById('rpIos')) { /* الآيفون (إن لم تظهر لوحة الإشعارات التي تشرح نفس الشيء) */
       show('<b>أضف رفراف بلاج إلى شاشتك</b><span>اضغط زر المشاركة <span class="ios">⎋</span> في الأسفل، ثم <span class="ios">إضافة إلى الشاشة الرئيسية</span>.</span>');
     }
   }, force ? 1500 : DELAY);
