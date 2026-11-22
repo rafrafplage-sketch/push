@@ -1,6 +1,6 @@
 /* ===== إشعارات رفراف بلاج — الإذن مباشرة في الموقع (بدون نافذة push.) =====
    يحتاج Cloudflare Worker الذي يقدّم /firebase-messaging-sw.js و /config.js على www.rafrafplage.tn
-   يعرض نافذة Chrome الأصلية + شاشة إرشاد عربية (سهم نحو «السماح» + لوحة في الأسفل) مثل kapitalis.com
+   يعرض نافذة Chrome الأصلية + شاشة إرشاد عربية (سهم نحو «السماح» + لوحة في الأسفل) مثل
    للتجربة: أضف ?rptest في آخر الرابط */
 (function(){
   var KEY = 'rp_push_state';
@@ -80,11 +80,11 @@
       '#rpg .arr path.h{fill:none;stroke:#facc15;stroke-width:9;stroke-linecap:round;stroke-linejoin:round}' +
       '#rpg .msg{position:absolute;top:385px;left:16px;right:16px;text-align:center;color:#fff;font-size:19px;line-height:1.6;text-shadow:0 1px 6px rgba(0,0,0,.5)}' +
       '#rpg .msg b{color:#facc15}' +
-      '#rpg .sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;color:#111;border-radius:28px 28px 0 0;padding:22px 20px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -6px 30px rgba(0,0,0,.25);transform:translateY(100%);transition:transform .4s ease;max-width:640px;margin:0 auto}' +
+      '#rpg .sheet{position:absolute;left:0;right:0;bottom:0;background:rgba(255,255,255,.72);-webkit-backdrop-filter:blur(22px) saturate(1.8);backdrop-filter:blur(22px) saturate(1.8);border:1px solid rgba(255,255,255,.7);color:#111;border-radius:28px 28px 0 0;padding:22px 20px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -6px 30px rgba(0,0,0,.25);transform:translateY(100%);transition:transform .4s ease;max-width:640px;margin:0 auto}' +
       '#rpg.on .sheet{transform:none}' +
       '#rpg .site{font-size:14px;color:#6b7280;margin:0 0 6px}' +
       '#rpg h3{margin:0 0 14px;font-size:21px;line-height:1.45;font-weight:800;color:#111}' +
-      '#rpg .tip{display:flex;align-items:center;gap:12px;background:#f1f4f9;border-radius:16px;padding:12px 14px;margin:0 0 12px}' +
+      '#rpg .tip{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.55);border-radius:16px;padding:12px 14px;margin:0 0 12px}' +
       '#rpg .tip i{flex:0 0 40px;height:40px;border-radius:50%;background:#2547d0;display:flex;align-items:center;justify-content:center}' +
       '#rpg .tip i svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2}' +
       '#rpg .tip span{font-size:14.5px;line-height:1.55;color:#1f2937}' +
@@ -93,7 +93,7 @@
       '#rpg .x{position:absolute;top:12px;left:14px;width:32px;height:32px;border:0;border-radius:50%;background:#f1f4f9;color:#555;font-size:18px;line-height:32px;cursor:pointer;padding:0}' +
       '@keyframes rpgP{50%{transform:scale(1.12);opacity:.75}}' +
       '@keyframes rpgD{to{stroke-dashoffset:-16.1}}' +
-      '@media (prefers-color-scheme:dark){#rpg .sheet{background:#1c1f26;color:#eee}#rpg h3{color:#f3f4f6}#rpg .tip{background:#262b35}#rpg .tip span{color:#e5e7eb}#rpg .x{background:#262b35;color:#ccc}}' +
+      '@media (prefers-color-scheme:dark){#rpg .sheet{background:rgba(28,31,40,.6);border-color:rgba(255,255,255,.12);color:#eee}#rpg h3{color:#f3f4f6}#rpg .tip{background:#262b35}#rpg .tip span{color:#e5e7eb}#rpg .x{background:#262b35;color:#ccc}}' +
       '@media (max-height:640px){#rpg .arr{height:220px}#rpg .msg{top:300px;font-size:17px}}';
     document.head.appendChild(css);
 
@@ -131,15 +131,15 @@
     setTimeout(function(){
       var c = document.createElement('style');
       c.textContent =
-        '#rpIos{position:fixed;left:10px;right:10px;bottom:-400px;max-width:460px;margin:0 auto;z-index:2147483646;direction:rtl;background:#fff;color:#111;' +
+        '#rpIos{position:fixed;left:10px;right:10px;bottom:-400px;max-width:460px;margin:0 auto;z-index:2147483646;direction:rtl;background:rgba(255,255,255,.62);-webkit-backdrop-filter:blur(22px) saturate(1.8);backdrop-filter:blur(22px) saturate(1.8);border:1px solid rgba(255,255,255,.7);color:#111;' +
         'border-radius:24px;box-shadow:0 10px 40px rgba(0,0,0,.28);padding:20px 18px calc(16px + env(safe-area-inset-bottom));font-family:-apple-system,"SF Pro Text",Tahoma,Arial,sans-serif;transition:bottom .4s ease}' +
         '#rpIos.on{bottom:10px}' +
         '#rpIos h4{margin:0 0 6px;font-size:18px;font-weight:800;display:flex;align-items:center;gap:8px}' +
-        '#rpIos p{margin:0 0 12px;font-size:14px;color:#555;line-height:1.6}' +
+        '#rpIos p{margin:0 0 12px;font-size:14px;color:#333;line-height:1.6}' +
         '#rpIos ol{margin:0;padding:0 20px 0 0;font-size:15px;line-height:2}' +
         '#rpIos .k{display:inline-block;padding:0 6px;border-radius:6px;background:#eaf2fb;color:#0a66c2;font-weight:700}' +
         '#rpIos .x{position:absolute;top:10px;left:12px;width:30px;height:30px;border:0;border-radius:50%;background:#f1f3f6;color:#555;font-size:15px;padding:0;cursor:pointer}' +
-        '@media (prefers-color-scheme:dark){#rpIos{background:#1f232b;color:#eee}#rpIos p{color:#aaa}#rpIos .k{background:#263445;color:#7cc4ff}#rpIos .x{background:#2a2f39;color:#ccc}}';
+        '@media (prefers-color-scheme:dark){#rpIos{background:rgba(28,31,40,.6);border-color:rgba(255,255,255,.12);color:#eee}#rpIos p{color:#aaa}#rpIos .k{background:#263445;color:#7cc4ff}#rpIos .x{background:#2a2f39;color:#ccc}}';
       document.head.appendChild(c);
       var d = document.createElement('div'); d.id = 'rpIos';
       d.innerHTML = '<button class="x" type="button" aria-label="إغلاق">✕</button>' +
@@ -161,17 +161,17 @@
   function safariCard(onYes){
     var c = document.createElement('style');
     c.textContent =
-      '#rpSf{position:fixed;left:10px;right:10px;bottom:-300px;max-width:460px;margin:0 auto;z-index:2147483646;direction:rtl;background:#fff;color:#111;' +
+      '#rpSf{position:fixed;left:10px;right:10px;bottom:-300px;max-width:460px;margin:0 auto;z-index:2147483646;direction:rtl;background:rgba(255,255,255,.62);-webkit-backdrop-filter:blur(22px) saturate(1.8);backdrop-filter:blur(22px) saturate(1.8);border:1px solid rgba(255,255,255,.7);color:#111;' +
       'border-radius:22px;box-shadow:0 10px 40px rgba(0,0,0,.28);padding:16px;display:flex;align-items:center;gap:12px;' +
       'font-family:-apple-system,"SF Pro Text",Tahoma,Arial,sans-serif;transition:bottom .4s ease}' +
       '#rpSf.on{bottom:calc(10px + env(safe-area-inset-bottom))}' +
       '#rpSf .b{flex:0 0 44px;height:44px;border-radius:50%;background:#0077b6;display:flex;align-items:center;justify-content:center;font-size:22px}' +
       '#rpSf .t{flex:1;min-width:0;font-size:15px;line-height:1.5}' +
       '#rpSf .t b{display:block;font-size:16px}' +
-      '#rpSf .t span{color:#666;font-size:13px}' +
+      '#rpSf .t span{color:#444;font-size:13px}' +
       '#rpSf .y{flex:none;border:0;border-radius:12px;background:#0077b6;color:#fff;font-weight:700;font-size:15px;padding:11px 16px;font-family:inherit;cursor:pointer}' +
       '#rpSf .x{position:absolute;top:-10px;left:-4px;width:28px;height:28px;border:0;border-radius:50%;background:#333;color:#fff;font-size:13px;padding:0;cursor:pointer}' +
-      '@media (prefers-color-scheme:dark){#rpSf{background:#1f232b;color:#eee}#rpSf .t span{color:#aaa}}';
+      '@media (prefers-color-scheme:dark){#rpSf{background:rgba(28,31,40,.6);border-color:rgba(255,255,255,.12);color:#eee}#rpSf .t span{color:#bbb}}';
     document.head.appendChild(c);
     var d = document.createElement('div'); d.id = 'rpSf';
     d.innerHTML = '<button class="x" type="button" aria-label="إغلاق">✕</button><div class="b">🔔</div>' +
@@ -187,7 +187,7 @@
   function toast(msg){
     var d = document.createElement('div');
     d.textContent = msg;
-    d.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#111;color:#fff;padding:12px 18px;border-radius:12px;font:600 15px Tahoma,Arial,sans-serif;z-index:2147483647;direction:rtl;box-shadow:0 6px 20px rgba(0,0,0,.25)';
+    d.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:rgba(20,22,30,.6);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.18);color:#fff;padding:12px 18px;border-radius:14px;font:600 15px Tahoma,Arial,sans-serif;z-index:2147483647;direction:rtl;box-shadow:0 6px 20px rgba(0,0,0,.25)';
     document.body.appendChild(d); setTimeout(function(){ d.remove(); }, 3000);
   }
 
