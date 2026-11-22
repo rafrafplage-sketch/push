@@ -157,6 +157,33 @@
     }, force ? 500 : 3000);
   }
 
+  /* بطاقة Safari: «فعّل الإشعارات» + زر (الضغط على الزر = إذن صالح عند Apple) */
+  function safariCard(onYes){
+    var c = document.createElement('style');
+    c.textContent =
+      '#rpSf{position:fixed;left:10px;right:10px;bottom:-300px;max-width:460px;margin:0 auto;z-index:2147483646;direction:rtl;background:#fff;color:#111;' +
+      'border-radius:22px;box-shadow:0 10px 40px rgba(0,0,0,.28);padding:16px;display:flex;align-items:center;gap:12px;' +
+      'font-family:-apple-system,"SF Pro Text",Tahoma,Arial,sans-serif;transition:bottom .4s ease}' +
+      '#rpSf.on{bottom:calc(10px + env(safe-area-inset-bottom))}' +
+      '#rpSf .b{flex:0 0 44px;height:44px;border-radius:50%;background:#0077b6;display:flex;align-items:center;justify-content:center;font-size:22px}' +
+      '#rpSf .t{flex:1;min-width:0;font-size:15px;line-height:1.5}' +
+      '#rpSf .t b{display:block;font-size:16px}' +
+      '#rpSf .t span{color:#666;font-size:13px}' +
+      '#rpSf .y{flex:none;border:0;border-radius:12px;background:#0077b6;color:#fff;font-weight:700;font-size:15px;padding:11px 16px;font-family:inherit;cursor:pointer}' +
+      '#rpSf .x{position:absolute;top:-10px;left:-4px;width:28px;height:28px;border:0;border-radius:50%;background:#333;color:#fff;font-size:13px;padding:0;cursor:pointer}' +
+      '@media (prefers-color-scheme:dark){#rpSf{background:#1f232b;color:#eee}#rpSf .t span{color:#aaa}}';
+    document.head.appendChild(c);
+    var d = document.createElement('div'); d.id = 'rpSf';
+    d.innerHTML = '<button class="x" type="button" aria-label="إغلاق">✕</button><div class="b">🔔</div>' +
+      '<div class="t"><b>إشعارات رفراف</b><span>آخر الأخبار والطقس فور نشرها</span></div>' +
+      '<button class="y" type="button">تفعيل</button>';
+    document.body.appendChild(d);
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ d.className = 'on'; }); });
+    function close(){ d.className = ''; setTimeout(function(){ d.remove(); }, 450); }
+    d.querySelector('.y').onclick = function(){ close(); onYes(); };
+    d.querySelector('.x').onclick = function(){ save({ later: Date.now() }); close(); };
+  }
+
   function toast(msg){
     var d = document.createElement('div');
     d.textContent = msg;
@@ -223,15 +250,17 @@
       document.removeEventListener('click', ask, true);
       document.removeEventListener('touchend', ask, true);
     }
-    /* أول لمسة/نقرة في الصفحة → النافذة (أضمن طريقة في Chrome) */
+    /* Safari (تطبيق الآيفون المثبّت أو Mac): يقبل الطلب فقط بعد ضغطة حقيقية على زر،
+       ولمسة التمرير لا تكفي → بطاقة صغيرة فيها زر «تفعيل» تظهر بعد ثانية */
+    if (isSafari()) { setTimeout(function(){ safariCard(ask); }, force ? 300 : 1000); return; }
+    /* Chrome وغيره: أول لمسة/نقرة في الصفحة، أو بعد 3 ثوانٍ مثل جوهرة FM */
     document.addEventListener('click', ask, true);
     document.addEventListener('touchend', ask, true);
-    /* وإن لم يلمس الزائر شيئاً: نطلب بعد 3 ثوانٍ مثل جوهرة FM
-       (Safari على الآيفون/Mac يرفض الطلب بدون لمسة، فننتظر اللمسة فقط) */
-    if (!isSafari()) setTimeout(ask, force ? 300 : 3000);
+    setTimeout(ask, force ? 300 : 3000);
   }
 
   window.rpShowGuide = showGuide; /* للمعاينة فقط */
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
-  else start();
+  /* نبدأ فوراً (لا ننتظر تحميل كل سكربتات الصفحة والإعلانات) */
+  if (document.body) start();
+  else document.addEventListener('DOMContentLoaded', start);
 })();
