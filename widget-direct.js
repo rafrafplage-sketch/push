@@ -138,8 +138,6 @@
         '#rpIos p{margin:0 0 12px;font-size:14px;color:#555;line-height:1.6}' +
         '#rpIos ol{margin:0;padding:0 20px 0 0;font-size:15px;line-height:2}' +
         '#rpIos .k{display:inline-block;padding:0 6px;border-radius:6px;background:#eaf2fb;color:#0a66c2;font-weight:700}' +
-        '#rpIos .go{display:block;margin-top:12px;text-align:center;padding:11px;border-radius:12px;background:#0077b6;color:#fff!important;font-weight:700;font-size:15px;text-decoration:none}' +
-        '#rpIos .dbg{display:block;margin-top:8px;font-size:11px;color:#888;direction:ltr;text-align:left}' +
         '#rpIos .x{position:absolute;top:10px;left:12px;width:30px;height:30px;border:0;border-radius:50%;background:#f1f3f6;color:#555;font-size:15px;padding:0;cursor:pointer}' +
         '@media (prefers-color-scheme:dark){#rpIos{background:#1f232b;color:#eee}#rpIos p{color:#aaa}#rpIos .k{background:#263445;color:#7cc4ff}#rpIos .x{background:#2a2f39;color:#ccc}}';
       document.head.appendChild(c);
@@ -149,10 +147,7 @@
         '<p>آبل تسمح بالإشعارات فقط بعد إضافة الموقع إلى الشاشة الرئيسية:</p>' +
         '<ol><li>اضغط زر المشاركة <span class="k">⎋</span> في الأسفل</li>' +
         '<li>اختر <span class="k">إضافة إلى الشاشة الرئيسية</span></li>' +
-        '<li>افتح <b>رفراف</b> من الشاشة الرئيسية واضغط <span class="k">السماح</span></li></ol>' +
-        '<a class="go" href="https://push.rafrafplage.tn/?auto=1&from=' + encodeURIComponent(location.href) + '">أو جرّب التفعيل من صفحة الإشعارات ←</a>' +
-        (force ? '<small class="dbg">Notification:' + ('Notification' in window) + ' · PushManager:' + ('PushManager' in window) +
-          ' · SW:' + ('serviceWorker' in navigator) + ' · standalone:' + (window.navigator.standalone === true) + '</small>' : '');
+        '<li>افتح <b>رفراف</b> من الشاشة الرئيسية واضغط <span class="k">السماح</span></li></ol>';
       document.body.appendChild(d);
       requestAnimationFrame(function(){ requestAnimationFrame(function(){ d.className = 'on'; }); });
       d.querySelector('.x').onclick = function(){
