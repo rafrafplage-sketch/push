@@ -1,10 +1,10 @@
 /* ===== إشعارات رفراف بلاج — الإذن مباشرة في الموقع (بدون نافذة push.) =====
    يحتاج Cloudflare Worker الذي يقدّم /firebase-messaging-sw.js و /config.js على www.rafrafplage.tn
-   للتجربة: أضف ?rptest في آخر الرابط ليظهر الصندوق دائماً */
+   يعرض نافذة Chrome الأصلية فقط «السماح بالإشعارات» (بدون صندوق خاص بالموقع)
+   للتجربة: أضف ?rptest في آخر الرابط */
 (function(){
   var KEY = 'rp_push_state';
-  var OLD = 'https://push.rafrafplage.tn/';          /* صفحة الاحتياط (آيفون بدون تثبيت…) */
-  var FB = 'https://www.gstatic.com/firebasejs/10.12.2/';
+    var FB = 'https://www.gstatic.com/firebasejs/10.12.2/';
   var force = location.search.indexOf('rptest') !== -1;
 
   function get(){ try{ return JSON.parse(localStorage.getItem(KEY) || '{}'); }catch(e){ return {}; } }
@@ -52,73 +52,47 @@
   }
 
   function start(){
-    /* متصفح لا يدعم (مثلاً آيفون قبل إضافة الموقع للشاشة الرئيسية) → نترك الطريقة القديمة */
-    var noSupport = !supported();
+    /* لا دعم (مثلاً آيفون بدون تثبيت الموقع) → لا شيء */
+    if (!supported()) return;
 
-    /* سبق السماح: نتأكد بصمت أن الرمز محفوظ */
-    if (!noSupport && Notification.permission === 'granted') {
+    /* سبق السماح: نتأكد مرة واحدة أن الرمز محفوظ */
+    if (Notification.permission === 'granted') {
       var has = null; try{ has = localStorage.getItem('pn_fs'); }catch(e){}
-      if (!has) subscribe().catch(function(){});   /* مرة واحدة فقط، ثم لا نحمّل Firebase في كل صفحة */
-      if (!force) return;
+      if (!has) subscribe().catch(function(){});
+      return;
     }
-    if (!noSupport && Notification.permission === 'denied' && !force) return;
+    if (Notification.permission === 'denied') return;
 
     var st = get();
-    if (!force) {
-      if (st.done) return;
-      if (st.later && Date.now() - st.later < 86400000) return; /* يعود بعد يوم */
-    }
+    if (!force && st.later && Date.now() - st.later < 86400000) return; /* أُغلقت النافذة بدون اختيار → نعيد بعد يوم */
 
-    var css = document.createElement('style');
-    css.textContent =
-      '#rpBg{position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);' +
-      'z-index:2147483646;opacity:0;transition:opacity .3s;pointer-events:none}' +
-      '#rpBg.on{opacity:1;pointer-events:auto}' +
-      '#rpS{position:fixed;left:0;right:0;bottom:-420px;margin:0 auto;width:calc(100% - 24px);max-width:440px;z-index:2147483647;' +
-      'background:#fbfbfd;border-radius:28px;padding:30px 20px 14px;text-align:center;direction:rtl;box-sizing:border-box;' +
-      'font-family:-apple-system,Roboto,"Segoe UI",Tahoma,Arial,sans-serif;box-shadow:0 -4px 30px rgba(0,0,0,.2);transition:bottom .35s ease}' +
-      '#rpS.on{bottom:12px}' +
-      '#rpS svg{width:40px;height:40px;stroke:#2f6fe4;fill:none;stroke-width:1.8}' +
-      '#rpS p{margin:14px 6px 18px;font-size:17px;line-height:1.5;color:#222}' +
-      '#rpS p b{font-weight:700}' +
-      '#rpS button{display:block;width:100%;background:none!important;border:0;padding:15px;font:600 19px -apple-system,Roboto,Tahoma,Arial,sans-serif;' +
-      'color:#111!important;cursor:pointer;border-radius:14px;margin:0}' +
-      '#rpS button:active{background:#eee!important}';
-    document.head.appendChild(css);
-
-    var bg = document.createElement('div'); bg.id = 'rpBg';
-    var sh = document.createElement('div'); sh.id = 'rpS';
-    sh.innerHTML =
-      '<svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>' +
-      '<p>السماح لـ <b>رفراف بلاج</b> بإرسال إشعارات إليك؟</p>' +
-      '<button id="rpY" type="button">السماح</button><button id="rpN" type="button">عدم السماح</button>';
-    document.body.appendChild(bg); document.body.appendChild(sh);
-
-    function close(){ sh.className = ''; bg.className = ''; }
-    setTimeout(function(){ bg.className = 'on'; sh.className = 'on'; }, 2500);
-    if (!noSupport) setTimeout(function(){ loadLibs().catch(function(){}); }, 2600); /* تحميل مسبق حتى يكون التفعيل سريعاً */
-
-    document.getElementById('rpY').onclick = function(){
-      close();
-      if (noSupport) { /* الطريقة القديمة: صفحة push. (تعليمات الآيفون…) */
-        location.href = OLD + '?from=' + encodeURIComponent(location.href);
-        return;
-      }
-      /* نافذة Chrome الأصلية «السماح بالإشعارات» تظهر هنا مباشرة */
-      Notification.requestPermission().then(function(perm){
+    /* نافذة Chrome الأصلية فقط (بدون أي صندوق من الموقع) */
+    var asked = false;
+    function ask(){
+      if (asked || Notification.permission !== 'default') return;
+      asked = true;
+      off();
+      loadLibs().catch(function(){}); /* تحميل مسبق */
+      var p = Notification.requestPermission();
+      (p && p.then ? p : Promise.resolve(Notification.permission)).then(function(perm){
         if (perm === 'granted') {
           save({ done: 1 });
           subscribe().then(function(){ toast('تم تفعيل الإشعارات ✅'); })
-                     .catch(function(e){ console.log('[push]', e); toast('تعذّر التفعيل، حاول لاحقاً'); });
-        } else if (perm === 'denied') {
-          save({ done: 1 });
-        } else {
+                     .catch(function(e){ console.log('[push]', e); });
+        } else if (perm === 'default') {
           save({ later: Date.now() });
         }
       });
-    };
-    document.getElementById('rpN').onclick = function(){ save({ later: Date.now() }); close(); };
-    bg.onclick = function(){ save({ later: Date.now() }); close(); };
+    }
+    function off(){
+      document.removeEventListener('click', ask, true);
+      document.removeEventListener('touchend', ask, true);
+    }
+    /* أول لمسة/نقرة في الصفحة → النافذة (أضمن طريقة في Chrome) */
+    document.addEventListener('click', ask, true);
+    document.addEventListener('touchend', ask, true);
+    /* وإن لم يلمس الزائر شيئاً: نطلب بعد 3 ثوانٍ مثل جوهرة FM */
+    setTimeout(ask, force ? 300 : 3000);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
