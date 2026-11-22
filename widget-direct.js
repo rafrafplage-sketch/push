@@ -50,6 +50,17 @@
   var G_TIP     = 'اختفى الشريط؟ اضغط على الأيقونة بجانب عنوان الموقع في الأعلى للسماح بالإشعارات.';
   var G_NOTE    = 'اضغط «السماح» لتصلك إشعاراتنا حتى والموقع مغلق. لإلغاء الاشتراك أوقفها من إعدادات الإشعارات في جهازك.';
   var G_PRIVACY = '';   /* رابط سياسة الخصوصية (اتركه فارغاً لإخفائه) */
+  var G_SECONDS = 10;   /* مدة بقاء شاشة الإرشاد بالثواني (تقريباً مدة شريط Chrome) */
+
+  /* Google Chrome فقط (ليس Samsung Internet أو Edge أو Opera أو Firefox…) */
+  function isChrome(){
+    try {
+      var b = navigator.userAgentData && navigator.userAgentData.brands;
+      if (b && b.length) return b.some(function(x){ return x.brand === 'Google Chrome'; });
+    } catch(e){}
+    var ua = navigator.userAgent;
+    return /Chrome\/\d+/.test(ua) && !/Edg|OPR|Opera|SamsungBrowser|YaBrowser|UCBrowser|Vivaldi|Brave|DuckDuckGo|MiuiBrowser|HuaweiBrowser|Firefox|; wv\)/.test(ua);
+  }
 
   /* شاشة الإرشاد: تظهر ما دامت نافذة Chrome مفتوحة، وتختفي بعد الاختيار */
   var guideEl = null;
@@ -138,6 +149,7 @@
       asked = true;
       off();
       loadLibs().catch(function(){}); /* تحميل مسبق */
+      save({ later: Date.now() }); /* إن لم يختر شيئاً: لا نطلب مرة أخرى قبل يوم (يُستبدل بـ done عند الاختيار) */
       var p = Notification.requestPermission();
       var finished = false, poll = null;
       function result(perm){
@@ -151,14 +163,18 @@
         }
         /* 'default' = الشريط ما زال في الأعلى أو صغُر بجانب العنوان → شاشة الإرشاد تبقى */
       }
-      function stop(){ clearTimeout(gT); if (poll) clearInterval(poll); poll = null; }
-      /* شاشة الإرشاد تبقى حتى يضغط الزائر «السماح» أو «✕» (مثل kapitalis) */
-      var gT = setTimeout(function(){
+      function stop(){ clearTimeout(gT); clearTimeout(hT); if (poll) clearInterval(poll); poll = null; }
+      /* شاشة الإرشاد: في Google Chrome فقط؛ باقي المتصفحات تكتفي بنافذتها العادية */
+      var hT = null;
+      var gT = !isChrome() ? null : setTimeout(function(){
         if (finished || Notification.permission !== 'default') return;
-        showGuide(function(){ finished = true; stop(); save({ later: Date.now() }); });
+        showGuide(function(){ clearTimeout(hT); });
+        /* تختفي مع اختفاء شريط Chrome تقريباً (المراقبة تستمر: إن ضغط «السماح» لاحقاً يُسجَّل) */
+        hT = setTimeout(hideGuide, G_SECONDS * 1000);
       }, 700);
       /* مراقبة الإذن: Chrome قد يُرجع الطلب فوراً مع الشريط الصغير، فنتابع التغيير بأنفسنا */
       poll = setInterval(function(){ result(Notification.permission); }, 800);
+      setTimeout(function(){ if (poll) { clearInterval(poll); poll = null; } }, 180000); /* نوقف المراقبة بعد 3 دقائق */
       try {
         navigator.permissions.query({ name: 'notifications' }).then(function(ps){
           ps.onchange = function(){ result(Notification.permission); };
