@@ -101,7 +101,6 @@
     document.body.appendChild(guideEl);
     requestAnimationFrame(function(){ requestAnimationFrame(function(){ if (guideEl) guideEl.className = 'on'; }); });
     guideEl.querySelector('.x').onclick = function(){ hideGuide(); if (onClose) onClose(); };
-    guideEl.querySelector('.dim').onclick = function(){ hideGuide(); if (onClose) onClose(); };
   }
   function hideGuide(){
     if (!guideEl) return;
@@ -140,18 +139,32 @@
       off();
       loadLibs().catch(function(){}); /* تحميل مسبق */
       var p = Notification.requestPermission();
-      /* شاشة الإرشاد إذا بقيت نافذة Chrome مفتوحة (أو ظهرت كشريط صغير في الأعلى) */
-      var gT = setTimeout(function(){ if (Notification.permission === 'default') showGuide(function(){ save({ later: Date.now() }); }); }, 700);
-      (p && p.then ? p : Promise.resolve(Notification.permission)).then(function(perm){
-        clearTimeout(gT); hideGuide();
+      var finished = false, poll = null;
+      function result(perm){
+        if (finished) return;
         if (perm === 'granted') {
-          save({ done: 1 });
+          finished = true; stop(); hideGuide(); save({ done: 1 });
           subscribe().then(function(){ toast('تم تفعيل الإشعارات ✅'); })
                      .catch(function(e){ console.log('[push]', e); });
-        } else if (perm === 'default') {
-          save({ later: Date.now() });
+        } else if (perm === 'denied') {
+          finished = true; stop(); hideGuide(); save({ done: 1 });
         }
-      });
+        /* 'default' = الشريط ما زال في الأعلى أو صغُر بجانب العنوان → شاشة الإرشاد تبقى */
+      }
+      function stop(){ clearTimeout(gT); if (poll) clearInterval(poll); poll = null; }
+      /* شاشة الإرشاد تبقى حتى يضغط الزائر «السماح» أو «✕» (مثل kapitalis) */
+      var gT = setTimeout(function(){
+        if (finished || Notification.permission !== 'default') return;
+        showGuide(function(){ finished = true; stop(); save({ later: Date.now() }); });
+      }, 700);
+      /* مراقبة الإذن: Chrome قد يُرجع الطلب فوراً مع الشريط الصغير، فنتابع التغيير بأنفسنا */
+      poll = setInterval(function(){ result(Notification.permission); }, 800);
+      try {
+        navigator.permissions.query({ name: 'notifications' }).then(function(ps){
+          ps.onchange = function(){ result(Notification.permission); };
+        }).catch(function(){});
+      } catch(e){}
+      (p && p.then ? p : Promise.resolve(Notification.permission)).then(result);
     }
     function off(){
       document.removeEventListener('click', ask, true);
