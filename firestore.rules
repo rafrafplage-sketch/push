@@ -1,12 +1,29 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == 'bajioussema@gmail.com';
+    }
+
     match /subscribers/{token} {
       // الزائر يضيف اشتراكه فقط (التعديل ممنوع → يرجع permission-denied إذا كان موجوداً، وهذا عادي)
       allow create: if request.resource.data.keys().hasOnly(['created', 'platform', 'lang']);
       // القراءة والحذف للأدمن فقط
-      allow read, delete: if request.auth != null
-                          && request.auth.token.email == 'bajioussema@gmail.com';
+      allow read, delete: if isAdmin();
+    }
+
+    // سجل الإشعارات المرسلة: الأدمن فقط
+    match /campaigns/{nid} {
+      allow read, write: if isAdmin();
+
+      // الأجهزة تسجّل "وصل" و"ضغط" فقط (إضافة بدون تعديل أو قراءة)
+      match /{kind}/{id} {
+        allow create: if (kind == 'delivered' || kind == 'clicks')
+                      && request.resource.data.keys().hasOnly(['p'])
+                      && request.resource.data.p in ['android', 'ios', 'desktop']
+                      && exists(/databases/$(database)/documents/campaigns/$(nid));
+        allow read, delete: if isAdmin();
+      }
     }
   }
 }
