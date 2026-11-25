@@ -42,15 +42,18 @@ p{font-size:14px;color:#aaa;text-align:center}
     navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' })
       .then(function(reg){ return firebase.messaging().getToken({ vapidKey: PN_CONFIG.vapidKey, serviceWorkerRegistration: reg }); })
       .then(function(t){
-        if (!t || t === saved) return go();
+        if (!t) return go();
+        if (t === saved) return pnSaveInfo(firebase.firestore(), t).then(go, go);
         var ua = navigator.userAgent;
         var isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
         var platform = isIOS ? 'ios' : (/Android/i.test(ua) ? 'android' : 'desktop');
-        return firebase.firestore().collection('subscribers').doc(t).set({
-          created: firebase.firestore.FieldValue.serverTimestamp(),
-          platform: platform,
-          lang: (navigator.language || '').slice(0, 10)
-        }).then(function(){ localStorage.setItem('pn_fs', t); })
+        return pnDeviceInfo().then(function(info){
+          return firebase.firestore().collection('subscribers').doc(t).set(Object.assign({
+            created: firebase.firestore.FieldValue.serverTimestamp(),
+            platform: platform,
+            lang: (navigator.language || '').slice(0, 10)
+          }, info));
+        }).then(function(){ localStorage.setItem('pn_fs', t); localStorage.setItem('pn_info', t); })
           .catch(function(e){ if (e.code === 'permission-denied') localStorage.setItem('pn_fs', t); })
           .then(go);
       })
