@@ -31,14 +31,16 @@
     }).then(function(t){
       if (!t) throw new Error('no token');
       var saved = null; try{ saved = localStorage.getItem('pn_fs'); }catch(e){}
-      if (saved === t) return t;
+      if (saved === t) return pnSaveInfo(firebase.firestore(), t).then(function(){ return t; });
       var ua = navigator.userAgent;
       var isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-      return firebase.firestore().collection('subscribers').doc(t).set({
-        created: firebase.firestore.FieldValue.serverTimestamp(),
-        platform: isIOS ? 'ios' : (/Android/i.test(ua) ? 'android' : 'desktop'),
-        lang: (navigator.language || '').slice(0, 10)
-      }).then(function(){ try{ localStorage.setItem('pn_fs', t); }catch(e){} })
+      return pnDeviceInfo().then(function(info){
+        return firebase.firestore().collection('subscribers').doc(t).set(Object.assign({
+          created: firebase.firestore.FieldValue.serverTimestamp(),
+          platform: isIOS ? 'ios' : (/Android/i.test(ua) ? 'android' : 'desktop'),
+          lang: (navigator.language || '').slice(0, 10)
+        }, info));
+      }).then(function(){ try{ localStorage.setItem('pn_fs', t); localStorage.setItem('pn_info', t); }catch(e){} })
         .catch(function(e){ if (e && e.code === 'permission-denied') { try{ localStorage.setItem('pn_fs', t); }catch(x){} } })
         .then(function(){ return t; });
     });
@@ -197,8 +199,9 @@
 
     /* سبق السماح: نتأكد مرة واحدة أن الرمز محفوظ */
     if (Notification.permission === 'granted') {
-      var has = null; try{ has = localStorage.getItem('pn_fs'); }catch(e){}
+      var has = null, inf = null; try{ has = localStorage.getItem('pn_fs'); inf = localStorage.getItem('pn_info'); }catch(e){}
       if (!has) subscribe().catch(function(){});
+      else if (inf !== has) loadLibs().then(function(){ return pnSaveInfo(firebase.firestore(), has); }).catch(function(){});
       return;
     }
     if (Notification.permission === 'denied') return;
