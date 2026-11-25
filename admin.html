@@ -4,137 +4,261 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>لوحة الأدمن - إشعارات رفراف بلاج</title>
-<link rel="icon" href="/icon.png">
+<meta name="theme-color" content="#0077b6">
+<title>لوحة الإشعارات - رفراف بلاج</title>
+<link rel="icon" href="https://raw.githubusercontent.com/rafrafplage-sketch/push/main/pwa/favicon-48.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Tahoma,Arial,sans-serif;background:#f4f5f7;color:#222;padding:20px}
-.wrap{max-width:760px;margin:auto}
-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:10px;flex-wrap:wrap}
-h1{font-size:22px;margin:0}
-.btn{padding:10px 16px;border:0;border-radius:10px;font-family:inherit;font-size:14px;cursor:pointer;text-decoration:none;display:inline-block}
-.red{background:#0077b6;color:#fff}.gray{background:#e4e6ea;color:#333}
-.card{background:#fff;border-radius:14px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,.06);margin-bottom:16px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
-.stat{background:#fff;border-radius:14px;padding:16px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.06)}
-.stat .n{font-size:30px;font-weight:bold;color:#0077b6;margin:6px 0}
-.stat .l{font-size:13px;color:#777}
-.stat.big{grid-column:1/-1}.stat.big .n{font-size:46px}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th,td{padding:9px 6px;border-bottom:1px solid #eee;text-align:right}
-th{color:#777;font-weight:normal}
-.tag{padding:2px 8px;border-radius:20px;font-size:12px;background:#eee}
-.tag.android{background:#e8f5e9;color:#2e7d32}.tag.ios{background:#e3f2fd;color:#1565c0}.tag.desktop{background:#fff3e0;color:#e65100}
-#login{text-align:center;padding:40px 20px}
-#login p{color:#777}
-#msg{color:#0077b6;margin-top:12px;font-size:14px}
-.hide{display:none}
-label{display:block;margin:12px 0 5px;font-size:13px;font-weight:bold}
-input,textarea{width:100%;padding:10px;border:1px solid #ddd;border-radius:10px;font-family:inherit;font-size:14px;background:transparent;color:inherit}
-textarea{min-height:70px;resize:vertical}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media(max-width:560px){.row2{grid-template-columns:1fr}}
-#send{width:100%;margin-top:16px;padding:13px;font-size:16px}
-#send:disabled{opacity:.6}
-.bar{height:8px;background:#eee;border-radius:8px;overflow:hidden;margin-top:12px;display:none}
-.bar i{display:block;height:100%;width:0;background:#0077b6;transition:width .2s}
-#status{margin-top:10px;font-size:14px;text-align:center}
-.preview{display:flex;gap:10px;align-items:center;background:#f4f5f7;border-radius:12px;padding:10px;margin-top:14px}
-.preview img{width:40px;height:40px;border-radius:8px}
-.preview b{display:block;font-size:14px}.preview span{font-size:12px;color:#777}
-.up{display:flex;gap:6px}.up input{flex:1}
-.upbtn{white-space:nowrap;padding:0 12px;border:1px dashed #0077b6;border-radius:10px;background:transparent;color:#0077b6;cursor:pointer;font-family:inherit;font-size:13px}
-.upbtn:disabled{opacity:.5}
-#p-img{display:none;width:100%;max-height:220px;object-fit:cover;border-radius:10px;margin-top:10px}
-.drop{outline:2px dashed #0077b6;outline-offset:4px}
-.scroll{overflow-x:auto;margin:0 -6px}
-#camps td{vertical-align:top}
-#camps .t{font-weight:bold;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
-#camps .d{font-size:11px;color:#888;margin-top:2px}
-#camps .num{text-align:center;white-space:nowrap}
-#camps th.num{text-align:center}
-@media(max-width:560px){#camps th,#camps td{padding:8px 3px}#camps .rate{padding:2px 5px}}
-.rate{display:inline-block;min-width:40px;padding:2px 8px;border-radius:20px;background:#e3f2fd;color:#0077b6;font-weight:bold}
-.note{font-size:12px;color:#888;margin:10px 0 0;line-height:1.7}
-#key-link{font-size:11px;color:#888;cursor:pointer;margin-top:4px;display:inline-block}
-@media (prefers-color-scheme:dark){
-  body{background:#121212;color:#eee}.card,.stat{background:#1e1e1e}
-  th,td{border-color:#2c2c2c}input,textarea{border-color:#333}.preview{background:#2a2a2a}.bar{background:#333}.gray{background:#333;color:#ddd}.tag{background:#333}
+:root{
+  --bg:#f3f6fa;--card:#fff;--line:#e7ecf2;--text:#0f1b2d;--muted:#6b7a90;--soft:#f6f8fb;
+  --brand:#0077b6;--brand2:#3b82f6;--brand-soft:#e6f2fa;--ok:#16a34a;--ok-soft:#e8f7ee;--bad:#dc2626;--bad-soft:#fdecec;
+  --and:#16a34a;--ios:#2563eb;--pc:#ea580c;--shadow:0 1px 2px rgba(15,27,45,.04),0 8px 24px rgba(15,27,45,.06);
 }
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0b1220;--card:#121b2b;--line:#1f2b3e;--text:#e8eef7;--muted:#8a9ab2;--soft:#0f1726;
+  --brand:#38a3e0;--brand2:#60a5fa;--brand-soft:#0f2a40;--ok:#4ade80;--ok-soft:#0f2a1c;--bad:#f87171;--bad-soft:#2a1414;
+  --and:#4ade80;--ios:#60a5fa;--pc:#fb923c;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:'Tajawal',Tahoma,Arial,sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.hide{display:none!important}
+button{font-family:inherit}
+.wrap{max-width:1080px;margin:auto;padding:0 16px 40px}
+
+/* شريط علوي */
+.top{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line);margin-bottom:18px}
+.top .in{max-width:1080px;margin:auto;padding:12px 16px;display:flex;align-items:center;gap:12px}
+.logo{width:40px;height:40px;border-radius:12px;box-shadow:var(--shadow);flex:none}
+.top h1{font-size:17px;margin:0;font-weight:800;line-height:1.2}
+.top small{display:block;color:var(--muted);font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:46vw}
+.top .act{margin-inline-start:auto;display:flex;gap:6px}
+.ib{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--text);cursor:pointer;font-size:17px;display:grid;place-items:center}
+.ib:hover{border-color:var(--brand)}
+.ib:disabled{opacity:.5}
+
+/* بطاقات */
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow);margin-bottom:16px;min-width:0}
+.ch{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.ch h2{font-size:16px;margin:0;font-weight:800}
+.ch .sub{color:var(--muted);font-size:12px;margin-inline-start:auto}
+.cols{display:grid;grid-template-columns:1.25fr 1fr;gap:16px}
+@media(max-width:860px){.cols{grid-template-columns:1fr}}
+.cols>div{min-width:0}
+
+/* أرقام */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:700px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;box-shadow:var(--shadow)}
+.kpi .l{color:var(--muted);font-size:13px;display:flex;align-items:center;gap:6px}
+.kpi .n{font-size:30px;font-weight:800;margin-top:2px;font-variant-numeric:tabular-nums}
+.kpi.main{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;border:0}
+.kpi.main .l{color:rgba(255,255,255,.85)}
+
+/* نموذج الإرسال */
+label{display:block;margin:12px 0 6px;font-size:13px;font-weight:700}
+label .opt{color:var(--muted);font-weight:500}
+input,textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:12px;font-family:inherit;font-size:15px;background:var(--soft);color:inherit;outline:none;transition:border-color .15s,box-shadow .15s}
+input:focus,textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+textarea{min-height:76px;resize:vertical}
+.cnt{float:left;color:var(--muted);font-weight:500;font-size:12px}
+.field{position:relative}
+.field .clr{position:absolute;left:6px;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;border:0;background:var(--line);color:var(--text);cursor:pointer;font-size:14px;display:none}
+.field.has .clr{display:block}
+.field.has input{padding-left:42px}
+.imgrow{display:flex;gap:8px}
+.imgrow .field{flex:1;min-width:0}
+.upbtn{white-space:nowrap;padding:0 14px;border:1px dashed var(--brand);border-radius:12px;background:var(--brand-soft);color:var(--brand);cursor:pointer;font-size:14px;font-weight:700}
+.upbtn:disabled{opacity:.5}
+.thumb{display:none;margin-top:10px;position:relative}
+.thumb.on{display:block}
+.thumb img{width:100%;max-height:200px;object-fit:cover;border-radius:12px;display:block;border:1px solid var(--line)}
+.thumb button{position:absolute;top:8px;left:8px;border:0;border-radius:10px;padding:6px 10px;background:rgba(0,0,0,.65);color:#fff;cursor:pointer;font-size:13px}
+.drop{outline:2px dashed var(--brand);outline-offset:4px}
+.tok{margin-top:8px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.tok a{color:var(--brand);cursor:pointer;text-decoration:none;font-weight:700}
+.tokbox{display:none;margin-top:8px;padding:12px;border-radius:12px;background:var(--soft);border:1px solid var(--line)}
+.tokbox.on{display:block}
+.tokbox p{margin:0 0 8px;font-size:12px;color:var(--muted)}
+.tokbox .r{display:flex;gap:8px}
+.tokbox input{direction:ltr;font-size:13px}
+.btn{padding:11px 16px;border:0;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;background:var(--brand);color:#fff}
+.btn.gray{background:var(--line);color:var(--text)}
+.btn:disabled{opacity:.6}
+#send{width:100%;margin-top:16px;padding:14px;font-size:16px;background:linear-gradient(135deg,var(--brand),var(--brand2));box-shadow:0 6px 16px color-mix(in srgb,var(--brand) 35%,transparent)}
+.bar{height:8px;background:var(--line);border-radius:8px;overflow:hidden;margin-top:12px;display:none}
+.bar i{display:block;height:100%;width:0;background:var(--brand);transition:width .2s}
+#status{margin-top:10px;font-size:14px;text-align:center;font-weight:500;min-height:1px}
+
+/* معاينة الإشعار (شكل أندرويد) */
+.phone{background:linear-gradient(160deg,#1e3a5f,#0b1a2e);border-radius:22px;padding:18px 12px;min-height:180px}
+.phone .hint{color:rgba(255,255,255,.55);font-size:11px;text-align:center;margin-bottom:10px}
+.nt{background:#fff;color:#1b1b1b;border-radius:18px;padding:12px 14px;box-shadow:0 8px 24px rgba(0,0,0,.25);direction:rtl}
+.nt .hd{display:flex;align-items:center;gap:6px;font-size:12px;color:#5f6368}
+.nt .hd img{width:18px;height:18px;border-radius:5px}
+.nt .bd{display:flex;gap:10px;margin-top:6px}
+.nt .tx{flex:1;min-width:0}
+.nt b{display:block;font-size:14px;overflow-wrap:anywhere}
+.nt .tx span{display:block;font-size:13px;color:#444;overflow-wrap:anywhere}
+.nt .ic{width:40px;height:40px;border-radius:10px;flex:none}
+.nt .big{display:none;width:100%;max-height:160px;object-fit:cover;border-radius:12px;margin-top:10px}
+.nt .big.on{display:block}
+.nt .lk{margin-top:8px;font-size:11px;color:#1a73e8;direction:ltr;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* نتائج الإشعارات */
+.camp{display:grid;grid-template-columns:1fr auto;gap:6px 12px;padding:12px 0;border-top:1px solid var(--line)}
+.camp:first-of-type{border-top:0}
+.camp .t{font-weight:700;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.camp .d{font-size:12px;color:var(--muted)}
+.camp .rate{align-self:start;font-weight:800;font-size:18px;color:var(--brand);text-align:center;line-height:1.1}
+.camp .rate small{display:block;font-size:11px;color:var(--muted);font-weight:500}
+.camp .nums{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap}
+.pill{font-size:12px;padding:3px 10px;border-radius:20px;background:var(--soft);border:1px solid var(--line);white-space:nowrap}
+.pill b{font-variant-numeric:tabular-nums}
+.meter{grid-column:1/-1;height:6px;border-radius:6px;background:var(--line);overflow:hidden;display:flex}
+.meter i{display:block;height:100%}
+.note{font-size:12px;color:var(--muted);margin:12px 0 0;line-height:1.7}
+
+/* الجمهور */
+.dist{display:flex;height:12px;border-radius:12px;overflow:hidden;background:var(--line);margin:4px 0 12px}
+.dist i{display:block;height:100%}
+.legend{display:grid;gap:8px}
+.lg{display:flex;align-items:center;gap:8px;font-size:14px}
+.lg .dot{width:10px;height:10px;border-radius:50%}
+.lg .v{margin-inline-start:auto;font-weight:700;font-variant-numeric:tabular-nums}
+.lg .v small{color:var(--muted);font-weight:500;margin-inline-start:4px}
+.sep{height:1px;background:var(--line);margin:14px 0}
+.rank{display:grid;gap:8px}
+.rk{display:grid;grid-template-columns:28px 1fr auto;gap:4px 8px;align-items:center;font-size:14px}
+.rk .f{grid-row:1/3;font-size:20px;text-align:center}
+.rk .nm{grid-column:2;grid-row:1}
+.rk .v{grid-column:3;grid-row:1;font-weight:700;font-variant-numeric:tabular-nums}
+.rk .b{grid-column:2/4;grid-row:2;height:6px;border-radius:6px;background:var(--brand-soft);overflow:hidden}
+.rk .b i{display:block;height:100%;background:var(--brand)}
+
+/* المشتركون */
+.srow{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:2px 12px;padding:12px 0;border-top:1px solid var(--line);align-items:center}
+.srow:first-child{border-top:0}
+.srow .av{grid-column:1;grid-row:1/3;width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:20px}
+.srow .av.android{background:var(--ok-soft)}.srow .av.ios{background:var(--brand-soft)}.srow .av.desktop{background:color-mix(in srgb,var(--pc) 14%,transparent)}
+.srow .m{grid-column:2;grid-row:1;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.srow .s{grid-column:2;grid-row:2;font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.srow .c{grid-column:3;grid-row:1/3;text-align:left;font-size:13px;white-space:nowrap}
+.srow .c small{display:block;color:var(--muted);font-size:11px}
+.more{width:100%;margin-top:10px}
+
+/* تسجيل الدخول */
+#login{max-width:420px;margin:12vh auto 0;text-align:center;padding:32px 24px}
+#login img{width:72px;height:72px;border-radius:20px;box-shadow:var(--shadow)}
+#login h1{font-size:22px;margin:14px 0 4px}
+#login p{color:var(--muted);margin:0 0 20px}
+#msg{color:var(--bad);margin-top:12px;font-size:14px}
+.empty{color:var(--muted);text-align:center;padding:16px 0;font-size:14px}
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <div id="login" class="card">
-    <h1>🔔 لوحة الأدمن</h1>
-    <p>سجّل الدخول بحساب Google الخاص بالأدمن</p>
-    <button class="btn red" id="signin">تسجيل الدخول بـ Google</button>
-    <div id="msg"></div>
-  </div>
+<div id="login" class="card">
+  <img src="https://raw.githubusercontent.com/rafrafplage-sketch/push/main/pwa/icon-192.png" alt="" onerror="this.style.visibility='hidden'">
+  <h1>لوحة إشعارات رفراف بلاج</h1>
+  <p>سجّل الدخول بحساب Google الخاص بالأدمن</p>
+  <button class="btn" id="signin">تسجيل الدخول بـ Google</button>
+  <div id="msg"></div>
+</div>
 
-  <div id="panel" class="hide">
-    <header>
-      <h1>🔔 مشتركو الإشعارات</h1>
+<div id="panel" class="hide">
+  <div class="top"><div class="in">
+    <img class="logo" src="https://raw.githubusercontent.com/rafrafplage-sketch/push/main/pwa/icon-192.png" alt="" onerror="this.style.visibility='hidden'">
+    <div><h1>إشعارات رفراف بلاج</h1><small id="who"></small></div>
+    <div class="act">
+      <button class="ib" id="refresh" title="تحديث">⟳</button>
+      <button class="ib" id="clean" title="حذف من ألغى الإشعارات">🧹</button>
+      <button class="ib" id="signout" title="خروج">⎋</button>
+    </div>
+  </div></div>
+
+  <div class="wrap">
+    <div class="kpis">
+      <div class="kpi main"><div class="l">👥 كل المشتركين</div><div class="n" id="total">…</div></div>
+      <div class="kpi"><div class="l">🆕 اليوم</div><div class="n" id="today">…</div></div>
+      <div class="kpi"><div class="l">📅 آخر 7 أيام</div><div class="n" id="week">…</div></div>
+      <div class="kpi"><div class="l">🗓️ آخر 30 يومًا</div><div class="n" id="month">…</div></div>
+    </div>
+
+    <div class="cols">
       <div>
-        <a class="btn red" href="#compose">✉️ إرسال إشعار</a>
-        <button class="btn gray" id="clean">🧹 تنظيف</button>
-        <button class="btn gray" id="refresh">تحديث</button>
-        <button class="btn gray" id="signout">خروج</button>
-      </div>
-    </header>
-
-    <div class="card" id="compose">
-      <b>✉️ إرسال إشعار لكل المشتركين</b>
-      <label>العنوان *</label>
-      <input id="f-title" maxlength="80" placeholder="🌊 خبر جديد من رفراف">
-      <label>النص</label>
-      <textarea id="f-body" maxlength="200" placeholder="اضغط لقراءة التفاصيل"></textarea>
-      <div class="row2">
-        <div><label>الرابط عند الضغط</label><input id="f-url" dir="ltr" placeholder="https://www.rafrafplage.tn/..."></div>
-        <div><label>صورة كبيرة (اختياري)</label>
-          <div class="up"><input id="f-img" dir="ltr" placeholder="https://...jpg أو ارفع صورة">
-          <button type="button" class="upbtn" id="up-btn">📷 رفع صورة</button></div>
+        <div class="card" id="compose">
+          <div class="ch"><h2>✉️ إشعار جديد</h2><span class="sub">يصل لكل المشتركين</span></div>
+          <label>العنوان * <span class="cnt" id="c-title">0/80</span></label>
+          <input id="f-title" maxlength="80" placeholder="🌊 خبر جديد من رفراف">
+          <label>النص <span class="cnt" id="c-body">0/200</span></label>
+          <textarea id="f-body" maxlength="200" placeholder="اضغط لقراءة التفاصيل"></textarea>
+          <label>الرابط عند الضغط <span class="opt">(اختياري، الصفحة الرئيسية إذا تركته فارغًا)</span></label>
+          <div class="field" id="w-url"><input id="f-url" dir="ltr" inputmode="url" placeholder="https://www.rafrafplage.tn/..."><button type="button" class="clr" data-clear="f-url" title="مسح">✕</button></div>
+          <label>صورة كبيرة <span class="opt">(اختياري)</span></label>
+          <div class="imgrow">
+            <div class="field" id="w-img"><input id="f-img" dir="ltr" inputmode="url" placeholder="رابط صورة أو ارفع صورة"><button type="button" class="clr" data-clear="f-img" title="حذف الصورة">✕</button></div>
+            <button type="button" class="upbtn" id="up-btn">📷 رفع صورة</button>
+          </div>
           <input type="file" id="up-file" accept="image/*" hidden>
-          <span id="key-link">🔑 تغيير GitHub Token</span></div>
+          <div class="thumb" id="thumb"><img id="thumb-img" alt=""><button type="button" id="img-del">🗑️ حذف الصورة</button></div>
+          <div class="tok"><span id="tok-state"></span><a id="tok-edit"></a></div>
+          <div class="tokbox" id="tokbox">
+            <p>الصق GitHub Token مرة واحدة. يبقى محفوظًا في هذا المتصفح ولا يُطلب منك مرة أخرى.</p>
+            <div class="r"><input id="tok-in" type="password" autocomplete="off" placeholder="ghp_..."><button type="button" class="btn" id="tok-save">حفظ</button></div>
+            <div id="tok-msg" class="tok"></div>
+          </div>
+          <button class="btn" id="send">🚀 إرسال الآن</button>
+          <div class="bar" id="bar"><i id="bar-i"></i></div>
+          <div id="status"></div>
+        </div>
       </div>
-      <div class="preview"><img src="/icon.png" alt=""><div><b id="p-title">العنوان</b><span id="p-body">النص</span></div></div>
-      <img id="p-img" alt="">
-      <button class="btn red" id="send">إرسال الآن</button>
-      <div class="bar" id="bar"><i id="bar-i"></i></div>
-      <div id="status"></div>
+
+      <div>
+        <div class="card">
+          <div class="ch"><h2>👁️ المعاينة</h2></div>
+          <div class="phone">
+            <div class="hint">هكذا يظهر تقريبًا في هاتف أندرويد</div>
+            <div class="nt">
+              <div class="hd"><img src="https://raw.githubusercontent.com/rafrafplage-sketch/push/main/pwa/icon-192.png" alt="" onerror="this.style.display='none'"><span>رفراف بلاج · الآن</span></div>
+              <div class="bd">
+                <div class="tx"><b id="p-title">العنوان</b><span id="p-body">النص</span></div>
+                <img class="ic" src="https://raw.githubusercontent.com/rafrafplage-sketch/push/main/pwa/icon-192.png" alt="" onerror="this.style.display='none'">
+              </div>
+              <img class="big" id="p-img" alt="" onerror="this.classList.remove('on')">
+              <div class="lk" id="p-url"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="ch"><h2>📱 الأجهزة</h2></div>
+          <div class="dist" id="dist"></div>
+          <div class="legend" id="legend"></div>
+          <div class="sep"></div>
+          <div class="ch"><h2>🌍 الدول</h2><span class="sub" id="geo-sub"></span></div>
+          <div class="rank" id="countries"><div class="empty">جاري التحميل...</div></div>
+          <div class="sep"></div>
+          <div class="ch"><h2>🧭 المتصفحات</h2></div>
+          <div class="rank" id="browsers"></div>
+        </div>
+      </div>
     </div>
 
     <div class="card">
-      <b>📊 نتائج الإشعارات المرسلة</b>
-      <div class="scroll">
-      <table id="camps">
-        <thead><tr><th>الإشعار</th><th class="num">أُرسل</th><th class="num">وصل</th><th class="num">ضغطوا</th><th class="num">النسبة</th></tr></thead>
-        <tbody id="camp-rows"><tr><td colspan="5">جاري التحميل...</td></tr></tbody>
-      </table>
-      </div>
-      <p class="note">«وصل» = ظهر الإشعار في جهاز المشترك. «ضغطوا» = فتحوا الإشعار بالضغط عليه. نسبة الضغط = ضغطوا ÷ أُرسل. الأرقام تزيد مع الوقت لأن بعض الأجهزة تستلم الإشعار لاحقًا عند فتح الإنترنت. من رأى الإشعار وأغلقه دون ضغط لا يمكن معرفته.</p>
-    </div>
-
-    <div class="grid">
-      <div class="stat big"><div class="l">إجمالي المشتركين</div><div class="n" id="total">…</div></div>
-      <div class="stat"><div class="l">اليوم</div><div class="n" id="today">…</div></div>
-      <div class="stat"><div class="l">آخر 7 أيام</div><div class="n" id="week">…</div></div>
-      <div class="stat"><div class="l">آخر 30 يومًا</div><div class="n" id="month">…</div></div>
-      <div class="stat"><div class="l">أندرويد</div><div class="n" id="android">…</div></div>
-      <div class="stat"><div class="l">آيفون</div><div class="n" id="ios">…</div></div>
-      <div class="stat"><div class="l">كمبيوتر</div><div class="n" id="desktop">…</div></div>
+      <div class="ch"><h2>📊 نتائج الإشعارات المرسلة</h2><span class="sub">آخر 20 إشعارًا</span></div>
+      <div id="camp-rows"><div class="empty">جاري التحميل...</div></div>
+      <p class="note">«وصل» = ظهر الإشعار في جهاز المشترك. «ضغط» = فتح الإشعار. النسبة = ضغط ÷ أُرسل. الأرقام تزيد مع الوقت لأن بعض الأجهزة تستلم الإشعار لاحقًا. من رأى الإشعار وأغلقه دون ضغط لا يمكن معرفته.</p>
     </div>
 
     <div class="card">
-      <b>آخر 30 مشتركًا</b>
-      <table>
-        <thead><tr><th>التاريخ</th><th>الجهاز</th><th>اللغة</th></tr></thead>
-        <tbody id="rows"><tr><td colspan="3">جاري التحميل...</td></tr></tbody>
-      </table>
+      <div class="ch"><h2>👥 آخر المشتركين</h2><span class="sub" id="subs-sub"></span></div>
+      <div id="rows"><div class="empty">جاري التحميل...</div></div>
+      <button class="btn gray more hide" id="more">عرض المزيد</button>
     </div>
   </div>
-
 </div>
 
 <script src="/config.js"></script>
@@ -149,18 +273,32 @@ const db = getFirestore(app);
 const subs = collection(db, 'subscribers');
 const camps = collection(db, 'campaigns');
 const $ = (id) => document.getElementById(id);
+const ICON = 'https://raw.githubusercontent.com/rafrafplage-sketch/push/main/pwa/icon-192.png';
 
-const PLAT = { android: 'أندرويد', ios: 'آيفون', desktop: 'كمبيوتر' };
+const PLAT = { android: ['أندرويد', '🤖', 'var(--and)'], ios: ['آيفون', '🍎', 'var(--ios)'], desktop: ['كمبيوتر', '💻', 'var(--pc)'] };
+const esc = (t) => String(t == null ? '' : t).replace(/[<>&"']/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmt = (n) => Number(n || 0).toLocaleString('ar-TN');
+let regionName = (c) => c;
+try { const dn = new Intl.DisplayNames(['ar'], { type: 'region' }); regionName = (c) => { try { return dn.of(c) || c; } catch (e) { return c; } }; } catch (e) {}
+const flag = (c) => /^[A-Z]{2}$/.test(c || '') ? String.fromCodePoint(...[...c].map((x) => 127397 + x.charCodeAt(0))) : '🏳️';
 
 async function count(q) {
   const snap = await getCountFromServer(q);
   return snap.data().count;
 }
-
 function since(days) {
   const d = new Date();
   if (days === 0) d.setHours(0, 0, 0, 0); else d.setDate(d.getDate() - days);
   return Timestamp.fromDate(d);
+}
+function ago(ts) {
+  if (!ts) return '';
+  const d = ts.toDate(), s = (Date.now() - d.getTime()) / 1000;
+  if (s < 60) return 'الآن';
+  if (s < 3600) return 'منذ ' + Math.floor(s / 60) + ' د';
+  if (s < 86400) return 'منذ ' + Math.floor(s / 3600) + ' س';
+  if (s < 7 * 86400) return 'منذ ' + Math.floor(s / 86400) + ' يوم';
+  return d.toLocaleDateString('ar-TN', { day: 'numeric', month: 'short' });
 }
 
 // ---------- نتائج الإشعارات المرسلة ----------
@@ -175,19 +313,57 @@ async function loadCampaigns() {
         count(collection(db, 'campaigns', c.id, 'clicks')).catch(() => null)
       ]);
       const sent = typeof c.ok === 'number' ? c.ok : null;
-      const date = c.created ? c.created.toDate().toLocaleString('ar-TN', { dateStyle: 'short', timeStyle: 'short' }) : '...';
-      const n = (v) => v === null ? '-' : v.toLocaleString('ar-TN');
-      const rate = sent && cl !== null ? Math.round(cl / sent * 100) + '%' : '-';
-      return `<tr><td><div class="t" title="${esc(c.title || '')}">${esc(c.title || '-')}</div><div class="d">${date}</div></td>` +
-        `<td class="num">${n(sent)}</td><td class="num">${n(dl)}</td><td class="num">${n(cl)}</td><td class="num"><span class="rate">${rate}</span></td></tr>`;
+      const date = c.created ? c.created.toDate().toLocaleString('ar-TN', { dateStyle: 'medium', timeStyle: 'short' }) : '...';
+      const n = (v) => v === null ? '-' : fmt(v);
+      const rate = sent && cl !== null ? Math.round(cl / sent * 100) : null;
+      const pd = sent && dl !== null ? Math.min(100, dl / sent * 100) : 0;
+      const pc = sent && cl !== null ? Math.min(100, cl / sent * 100) : 0;
+      return `<div class="camp">
+        <div><div class="t">${esc(c.title || '-')}</div><div class="d">${date}</div></div>
+        <div class="rate">${rate === null ? '-' : rate + '%'}<small>نسبة الضغط</small></div>
+        <div class="meter" title="وصل / ضغط"><i style="width:${pc}%;background:var(--brand)"></i><i style="width:${Math.max(0, pd - pc)}%;background:color-mix(in srgb,var(--brand) 35%,transparent)"></i></div>
+        <div class="nums"><span class="pill">📤 أُرسل <b>${n(sent)}</b></span><span class="pill">📬 وصل <b>${n(dl)}</b></span><span class="pill">👆 ضغط <b>${n(cl)}</b></span></div>
+      </div>`;
     }));
-    $('camp-rows').innerHTML = rows.join('') || '<tr><td colspan="5">لم ترسل أي إشعار بعد التحديث. الإشعارات القادمة ستظهر هنا.</td></tr>';
+    $('camp-rows').innerHTML = rows.join('') || '<div class="empty">لم ترسل أي إشعار بعد. الإشعارات القادمة ستظهر هنا.</div>';
   } catch (e) {
     console.log(e);
-    $('camp-rows').innerHTML = '<tr><td colspan="5">' + (e.code === 'permission-denied'
+    $('camp-rows').innerHTML = '<div class="empty">' + (e.code === 'permission-denied'
       ? 'حدّث قواعد Firestore (Rules) أولًا حتى تظهر النتائج.'
-      : 'خطأ: ' + esc(e.code || e.message)) + '</td></tr>';
+      : 'خطأ: ' + esc(e.code || e.message)) + '</div>';
   }
+}
+
+// ---------- المشتركون ----------
+let subList = [], shown = 30;
+function deviceTitle(d) {
+  if (d.model) return d.model;
+  return (PLAT[d.platform] || ['جهاز'])[0];
+}
+function renderSubs() {
+  const html = subList.slice(0, shown).map((d) => {
+    const p = PLAT[d.platform] ? d.platform : 'desktop';
+    const details = [d.os, d.browser].filter(Boolean).join(' · ') || (d.lang ? 'اللغة: ' + d.lang : 'بدون تفاصيل (مشترك قديم)');
+    const country = d.country ? flag(d.country) + ' ' + regionName(d.country) : '🌐 غير معروف';
+    return `<div class="srow">
+      <div class="av ${p}">${PLAT[p][1]}</div>
+      <div class="m">${esc(deviceTitle(d))}</div>
+      <div class="c">${esc(country)}<small>${ago(d.created)}</small></div>
+      <div class="s">${esc(details)}${d.screen ? ' · ' + esc(d.screen) : ''}</div>
+    </div>`;
+  }).join('');
+  $('rows').innerHTML = html || '<div class="empty">لا يوجد مشتركون بعد</div>';
+  $('more').classList.toggle('hide', subList.length <= shown);
+}
+$('more').onclick = () => { shown += 30; renderSubs(); };
+
+function rank(el, map, total, label) {
+  const arr = Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  $(el).innerHTML = arr.map(([k, v]) => {
+    const pct = total ? Math.round(v / total * 100) : 0;
+    const l = label(k);
+    return `<div class="rk"><span class="f">${l[0]}</span><span class="nm">${esc(l[1])}</span><span class="v">${fmt(v)} <small style="color:var(--muted);font-weight:500">(${pct}%)</small></span><span class="b"><i style="width:${pct}%"></i></span></div>`;
+  }).join('') || '<div class="empty">لا توجد بيانات بعد</div>';
 }
 
 async function load() {
@@ -202,27 +378,38 @@ async function load() {
       count(query(subs, where('platform', '==', 'ios'))),
       count(query(subs, where('platform', '==', 'desktop')))
     ]);
-    const fmt = (n) => n.toLocaleString('ar-TN');
     $('total').textContent = fmt(total); $('today').textContent = fmt(today);
     $('week').textContent = fmt(week);   $('month').textContent = fmt(month);
-    $('android').textContent = fmt(an);  $('ios').textContent = fmt(io); $('desktop').textContent = fmt(de);
 
-    const last = await getDocs(query(subs, orderBy('created', 'desc'), limit(30)));
-    let html = '';
-    last.forEach((doc) => {
-      const d = doc.data();
-      const date = d.created ? d.created.toDate().toLocaleString('ar-TN', { dateStyle: 'short', timeStyle: 'short' }) : '-';
-      const p = d.platform || '-';
-      html += `<tr><td>${date}</td><td><span class="tag ${p}">${PLAT[p] || p}</span></td><td>${(d.lang || '-').replace(/</g, '')}</td></tr>`;
+    const parts = [['android', an], ['ios', io], ['desktop', de]];
+    const sum = an + io + de || 1;
+    $('dist').innerHTML = parts.map(([k, v]) => `<i style="width:${v / sum * 100}%;background:${PLAT[k][2]}"></i>`).join('');
+    $('legend').innerHTML = parts.map(([k, v]) =>
+      `<div class="lg"><span class="dot" style="background:${PLAT[k][2]}"></span>${PLAT[k][1]} ${PLAT[k][0]}<span class="v">${fmt(v)} <small>(${Math.round(v / sum * 100)}%)</small></span></div>`).join('');
+
+    // آخر 500 مشترك: للقائمة والدول والمتصفحات
+    const snap = await getDocs(query(subs, orderBy('created', 'desc'), limit(500)));
+    subList = [];
+    snap.forEach((d) => subList.push(d.data()));
+    $('subs-sub').textContent = fmt(total) + ' مشترك';
+    $('geo-sub').textContent = total > 500 ? 'حسب آخر 500 مشترك' : '';
+    const ctr = {}, br = {};
+    let known = 0;
+    subList.forEach((d) => {
+      if (d.country) { ctr[d.country] = (ctr[d.country] || 0) + 1; known++; }
+      if (d.browser) { const b = d.browser.replace(/ \d+.*$/, '').replace(' (تطبيق)', ''); br[b] = (br[b] || 0) + 1; }
     });
-    $('rows').innerHTML = html || '<tr><td colspan="3">لا يوجد مشتركون بعد</td></tr>';
+    if (subList.length - known > 0) ctr['?'] = subList.length - known;
+    rank('countries', ctr, subList.length, (k) => k === '?' ? ['🌐', 'غير معروف بعد'] : [flag(k), regionName(k)]);
+    rank('browsers', br, subList.length, (k) => ['🧭', k]);
+    renderSubs();
   } catch (e) {
     console.log(e);
     if (e.code === 'permission-denied') {
       await signOut(auth);
       $('msg').textContent = 'هذا الحساب ليس حساب الأدمن.';
     } else {
-      $('rows').innerHTML = '<tr><td colspan="3">خطأ: ' + (e.code || e.message) + '</td></tr>';
+      $('rows').innerHTML = '<div class="empty">خطأ: ' + esc(e.code || e.message) + '</div>';
     }
   }
 }
@@ -252,31 +439,61 @@ $('signin').onclick = () => {
   googleLogin().catch((e) => { $('msg').textContent = 'تعذّر تسجيل الدخول: ' + e.code; });
 };
 
-// ---------- الإرسال ----------
-const esc = (t) => String(t).replace(/[<>&"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c]));
-['f-title', 'f-body'].forEach((id) => $(id).addEventListener('input', () => {
-  $('p-title').textContent = $('f-title').value || 'العنوان';
-  $('p-body').textContent = $('f-body').value || 'النص';
-}));
+// ---------- نموذج الإرسال + المعاينة ----------
+function status(t, ok) { $('status').style.color = ok === false ? 'var(--bad)' : ok ? 'var(--ok)' : ''; $('status').textContent = t; }
+function syncPreview() {
+  const t = $('f-title').value, b = $('f-body').value, u = $('f-url').value.trim(), im = $('f-img').value.trim();
+  $('p-title').textContent = t || 'العنوان';
+  $('p-body').textContent = b || 'النص';
+  $('p-url').textContent = u || PN_CONFIG.siteUrl;
+  $('c-title').textContent = t.length + '/80';
+  $('c-body').textContent = b.length + '/200';
+  $('w-url').classList.toggle('has', !!u);
+  $('w-img').classList.toggle('has', !!im);
+  const okImg = /^https:\/\//.test(im);
+  $('thumb').classList.toggle('on', okImg);
+  $('p-img').classList.toggle('on', okImg);
+  if (okImg) { if ($('p-img').getAttribute('src') !== im) { $('p-img').src = im; $('thumb-img').src = im; } }
+  else { $('p-img').removeAttribute('src'); $('thumb-img').removeAttribute('src'); }
+}
+['f-title', 'f-body', 'f-url', 'f-img'].forEach((id) => $(id).addEventListener('input', syncPreview));
+document.querySelectorAll('[data-clear]').forEach((b) => b.onclick = () => { $(b.dataset.clear).value = ''; syncPreview(); });
+$('img-del').onclick = () => { $('f-img').value = ''; syncPreview(); status(''); };
 
-
-// ---------- رفع الصور إلى مستودع GitHub (مجلد img) ----------
+// ---------- GitHub Token: يُحفظ في هذا المتصفح بشكل دائم ----------
 const GH_REPO = 'rafrafplage-sketch/push';
 const GH_KEY = 'gh_token';
-function ghToken(ask) {
-  let k = '';
-  try { k = localStorage.getItem(GH_KEY) || ''; } catch (e) {}
-  if (!k || ask) {
-    k = (prompt('ضع GitHub Token (مرة واحدة فقط على هذا الجهاز):', k) || '').trim();
-    if (k) try { localStorage.setItem(GH_KEY, k); } catch (e) {}
-  }
-  return k;
+function getGh() { try { return localStorage.getItem(GH_KEY) || ''; } catch (e) { return ''; } }
+function tokUI() {
+  const has = !!getGh();
+  $('tok-state').textContent = has ? '🔑 GitHub Token محفوظ في هذا المتصفح' : '🔑 لرفع الصور أضف GitHub Token مرة واحدة';
+  $('tok-edit').textContent = has ? 'تغيير' : 'إضافة';
 }
-function showImg() {
-  const u = $('f-img').value.trim();
-  $('p-img').style.display = /^https:\/\//.test(u) ? 'block' : 'none';
-  if (/^https:\/\//.test(u)) $('p-img').src = u;
+$('tok-edit').onclick = () => { $('tokbox').classList.toggle('on'); $('tok-in').value = ''; $('tok-msg').textContent = ''; $('tok-in').focus(); };
+async function checkGh(k) {
+  const r = await fetch('https://api.github.com/repos/' + GH_REPO, { headers: { 'Authorization': 'Bearer ' + k, 'Accept': 'application/vnd.github+json' } });
+  if (r.status === 401) return 'التوكن غير صحيح أو انتهت صلاحيته.';
+  if (!r.ok) return 'التوكن لا يرى المستودع ' + GH_REPO + ' (HTTP ' + r.status + ').';
+  const j = await r.json();
+  if (!j.permissions || !j.permissions.push) return 'التوكن لا يملك صلاحية الكتابة. اختر صلاحية repo عند إنشائه.';
+  return '';
 }
+$('tok-save').onclick = async () => {
+  const k = $('tok-in').value.trim();
+  if (!k) return;
+  $('tok-save').disabled = true; $('tok-msg').textContent = '⏳ جاري التحقق...';
+  try {
+    const err = await checkGh(k);
+    if (err) { $('tok-msg').textContent = '❌ ' + err; }
+    else {
+      try { localStorage.setItem(GH_KEY, k); } catch (e) {}
+      if (getGh() === k) { $('tokbox').classList.remove('on'); status('✅ تم حفظ التوكن، لن يُطلب منك مرة أخرى في هذا المتصفح', true); }
+      else $('tok-msg').textContent = '❌ المتصفح يمنع الحفظ (وضع التصفح الخفي؟). افتح اللوحة في Chrome العادي.';
+    }
+  } catch (e) { $('tok-msg').textContent = '❌ تعذّر الاتصال بـ GitHub: ' + e.message; }
+  $('tok-save').disabled = false; tokUI();
+};
+
 // تصغير الصورة إلى 1200px وضغطها JPEG (أسرع وأخف)
 function compress(file) {
   return new Promise((ok, bad) => {
@@ -295,8 +512,8 @@ function compress(file) {
 }
 async function uploadImage(file) {
   if (!file || !/^image\//.test(file.type)) { status('اختر ملف صورة', false); return; }
-  const token = ghToken(false);
-  if (!token) { status('يلزم GitHub Token لرفع الصور', false); return; }
+  const token = getGh();
+  if (!token) { $('tokbox').classList.add('on'); $('tok-in').focus(); status('أضف GitHub Token مرة واحدة لرفع الصور', false); return; }
   const btn = $('up-btn');
   btn.disabled = true; btn.textContent = '⏳ جاري الرفع...';
   status('جاري تجهيز الصورة...');
@@ -310,13 +527,15 @@ async function uploadImage(file) {
       headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json' },
       body: JSON.stringify({ message: 'صورة إشعار', content: b64 })
     });
-    const j = await r.json();
+    const j = await r.json().catch(() => ({}));
     if (!r.ok) {
-      if (r.status === 401 || r.status === 403 || r.status === 404) try { localStorage.removeItem(GH_KEY); } catch (x) {}
+      // لا نحذف التوكن إلا إذا كان غير صحيح فعلاً
+      if (r.status === 401) { try { localStorage.removeItem(GH_KEY); } catch (x) {} tokUI(); throw new Error('التوكن غير صحيح أو انتهت صلاحيته، أضف توكن جديد'); }
+      if (r.status === 403 || r.status === 404) throw new Error('التوكن لا يملك صلاحية الكتابة في المستودع (اختر صلاحية repo)');
       throw new Error(j.message || ('HTTP ' + r.status));
     }
     $('f-img').value = 'https://raw.githubusercontent.com/' + GH_REPO + '/main/' + name;
-    showImg();
+    syncPreview();
     status('✅ تم رفع الصورة', true);
   } catch (e) {
     status('❌ فشل رفع الصورة: ' + e.message, false);
@@ -325,8 +544,6 @@ async function uploadImage(file) {
 }
 $('up-btn').onclick = () => $('up-file').click();
 $('up-file').onchange = (e) => { uploadImage(e.target.files[0]); e.target.value = ''; };
-$('key-link').onclick = () => ghToken(true);
-$('f-img').addEventListener('input', showImg);
 // سحب وإفلات أو لصق صورة (Ctrl+V) في بطاقة الإرسال
 const card = $('compose');
 card.addEventListener('dragover', (e) => { e.preventDefault(); card.classList.add('drop'); });
@@ -337,8 +554,7 @@ document.addEventListener('paste', (e) => {
   if (it) { e.preventDefault(); uploadImage(it.getAsFile()); }
 });
 
-function status(t, ok) { $('status').style.color = ok === false ? '#0077b6' : ok ? '#2e7d32' : ''; $('status').textContent = t; }
-
+// ---------- الإرسال ----------
 async function sendOne(accessToken, token, msg, validateOnly) {
   const r = await fetch('https://fcm.googleapis.com/v1/projects/' + PN_CONFIG.firebase.projectId + '/messages:send', {
     method: 'POST',
@@ -358,7 +574,7 @@ $('send').onclick = async () => {
   const body = $('f-body').value.trim();
   let url = $('f-url').value.trim();
   const image = $('f-img').value.trim();
-  if (!title) { status('اكتب العنوان أولًا', false); return; }
+  if (!title) { status('اكتب العنوان أولًا', false); $('f-title').focus(); return; }
   if (url && !/^https:\/\//.test(url)) { status('الرابط يجب أن يبدأ بـ https://', false); return; }
   if (image && !/^https:\/\//.test(image)) { status('رابط الصورة يجب أن يبدأ بـ https://', false); return; }
   if (!url) url = PN_CONFIG.siteUrl;
@@ -379,7 +595,7 @@ $('send').onclick = async () => {
     snap.forEach((d) => tokens.push(d.id));
   } catch (e) { status('خطأ في جلب المشتركين: ' + e.code, false); btn.disabled = false; return; }
   if (!tokens.length) { status('لا يوجد مشتركون بعد', false); btn.disabled = false; return; }
-  if (!confirmBox(tokens.length)) { btn.disabled = false; status(''); return; }
+  if (!window.confirm('إرسال الإشعار إلى ' + tokens.length + ' مشترك؟')) { btn.disabled = false; status(''); return; }
 
   // سجل جديد لهذا الإشعار لحساب من وصله ومن ضغط عليه
   let camp = null;
@@ -396,7 +612,7 @@ $('send').onclick = async () => {
     data: data,
     webpush: {
       headers: { Urgency: 'high', TTL: '86400' },
-      notification: { icon: location.origin + '/icon.png', badge: location.origin + '/badge.png', dir: 'rtl', lang: 'ar' },
+      notification: { icon: ICON, dir: 'rtl', lang: 'ar' },
       fcm_options: { link: url }
     }
   };
@@ -434,10 +650,6 @@ $('send').onclick = async () => {
   btn.disabled = false;
 };
 
-function confirmBox(n) {
-  return window.confirm('إرسال الإشعار إلى ' + n + ' مشترك؟');
-}
-
 // ---------- تنظيف: حذف من ألغى الإشعارات (فحص بدون إرسال أي إشعار) ----------
 async function cleanup(silent) {
   let at = getSavedToken();
@@ -447,9 +659,9 @@ async function cleanup(silent) {
     if (!at) return;
   }
   const btn = $('clean');
-  btn.disabled = true; btn.textContent = '⏳ فحص...';
+  btn.disabled = true;
   let tokens = [];
-  try { (await getDocs(subs)).forEach((d) => tokens.push(d.id)); } catch (e) { btn.disabled = false; btn.textContent = '🧹 تنظيف'; return; }
+  try { (await getDocs(subs)).forEach((d) => tokens.push(d.id)); } catch (e) { btn.disabled = false; return; }
   let dead = 0;
   const queue = tokens.slice();
   async function worker() {
@@ -462,7 +674,7 @@ async function cleanup(silent) {
     }
   }
   await Promise.all(Array.from({ length: Math.min(10, tokens.length || 1) }, worker));
-  btn.disabled = false; btn.textContent = '🧹 تنظيف';
+  btn.disabled = false;
   if (dead) load();
   if (!silent) status(dead ? '🧹 حُذف ' + dead + ' مشترك ألغى الإشعارات' : '✅ كل المشتركين نشطون', true);
 }
@@ -470,10 +682,12 @@ $('clean').onclick = () => cleanup(false);
 $('signout').onclick = () => signOut(auth);
 $('refresh').onclick = load;
 
+tokUI();
+syncPreview();
 onAuthStateChanged(auth, (user) => {
   $('login').classList.toggle('hide', !!user);
   $('panel').classList.toggle('hide', !user);
-  if (user) { load(); cleanup(true); }
+  if (user) { $('who').textContent = user.email || ''; load(); cleanup(true); }
 });
 </script>
 </body>
