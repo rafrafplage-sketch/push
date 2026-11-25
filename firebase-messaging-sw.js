@@ -34,8 +34,11 @@ self.addEventListener('notificationclick', function (event) {
   var m = d.FCM_MSG || {};
   var url = (m.data && m.data.url) || (m.fcmOptions && m.fcmOptions.link) || PN_CONFIG.siteUrl;
   var nid = (m.data && m.data.nid) || '';
-  // المرور عبر go.html لتسجيل المشترك القديم في لوحة الأدمن ثم فتح الرابط
-  url = self.location.origin + '/go.html?u=' + encodeURIComponent(url);
+  // go.html موجود فقط على push.rafrafplage.tn (لتسجيل المشترك القديم ثم فتح الرابط).
+  // المشتركون من www.rafrafplage.tn مباشرة: نفتح الرابط نفسه (go.html غير موجود هناك → 404)
+  if (/^push\./.test(self.location.hostname)) {
+    url = self.location.origin + '/go.html?u=' + encodeURIComponent(url);
+  }
   event.notification.close();
   event.stopImmediatePropagation();
   event.waitUntil(Promise.all([
