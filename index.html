@@ -146,14 +146,16 @@ a.back{display:block;margin-top:14px;color:#888;font-size:13px}
     try { old = localStorage.getItem('pn_tok'); saved = localStorage.getItem('pn_fs'); localStorage.setItem('pn_tok', t); } catch(e) {}
     var platform = isIOS ? 'ios' : (/Android/i.test(navigator.userAgent) ? 'android' : 'desktop');
     if (analytics && old !== t) analytics.logEvent(old ? 'push_resubscribe' : 'push_subscribe', { platform: platform });
-    if (saved === t) return;
-    // حفظ المشترك في Firestore (لوحة الأدمن)
+    if (saved === t) { pnSaveInfo(firebase.firestore(), t); return; }
+    // حفظ المشترك في Firestore (لوحة الأدمن) مع تفاصيل الجهاز والبلد
     try {
-      firebase.firestore().collection('subscribers').doc(t).set({
-        created: firebase.firestore.FieldValue.serverTimestamp(),
-        platform: platform,
-        lang: (navigator.language || '').slice(0, 10)
-      }).then(function(){ try{ localStorage.setItem('pn_fs', t); }catch(e){} })
+      pnDeviceInfo().then(function(info){
+        return firebase.firestore().collection('subscribers').doc(t).set(Object.assign({
+          created: firebase.firestore.FieldValue.serverTimestamp(),
+          platform: platform,
+          lang: (navigator.language || '').slice(0, 10)
+        }, info));
+      }).then(function(){ try{ localStorage.setItem('pn_fs', t); localStorage.setItem('pn_info', t); }catch(e){} })
         .catch(function(e){
           console.log('[subscribers]', e.code);
           if (e.code === 'permission-denied') { try{ localStorage.setItem('pn_fs', t); }catch(x){} } // موجود مسبقًا
