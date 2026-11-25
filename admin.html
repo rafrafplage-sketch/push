@@ -47,6 +47,15 @@ textarea{min-height:70px;resize:vertical}
 .upbtn:disabled{opacity:.5}
 #p-img{display:none;width:100%;max-height:220px;object-fit:cover;border-radius:10px;margin-top:10px}
 .drop{outline:2px dashed #0077b6;outline-offset:4px}
+.scroll{overflow-x:auto;margin:0 -6px}
+#camps td{vertical-align:top}
+#camps .t{font-weight:bold;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+#camps .d{font-size:11px;color:#888;margin-top:2px}
+#camps .num{text-align:center;white-space:nowrap}
+#camps th.num{text-align:center}
+@media(max-width:560px){#camps th,#camps td{padding:8px 3px}#camps .rate{padding:2px 5px}}
+.rate{display:inline-block;min-width:40px;padding:2px 8px;border-radius:20px;background:#e3f2fd;color:#0077b6;font-weight:bold}
+.note{font-size:12px;color:#888;margin:10px 0 0;line-height:1.7}
 #key-link{font-size:11px;color:#888;cursor:pointer;margin-top:4px;display:inline-block}
 @media (prefers-color-scheme:dark){
   body{background:#121212;color:#eee}.card,.stat{background:#1e1e1e}
@@ -96,6 +105,17 @@ textarea{min-height:70px;resize:vertical}
       <div id="status"></div>
     </div>
 
+    <div class="card">
+      <b>📊 نتائج الإشعارات المرسلة</b>
+      <div class="scroll">
+      <table id="camps">
+        <thead><tr><th>الإشعار</th><th class="num">أُرسل</th><th class="num">وصل</th><th class="num">ضغطوا</th><th class="num">النسبة</th></tr></thead>
+        <tbody id="camp-rows"><tr><td colspan="5">جاري التحميل...</td></tr></tbody>
+      </table>
+      </div>
+      <p class="note">«وصل» = ظهر الإشعار في جهاز المشترك. «ضغطوا» = فتحوا الإشعار بالضغط عليه. نسبة الضغط = ضغطوا ÷ أُرسل. الأرقام تزيد مع الوقت لأن بعض الأجهزة تستلم الإشعار لاحقًا عند فتح الإنترنت. من رأى الإشعار وأغلقه دون ضغط لا يمكن معرفته.</p>
+    </div>
+
     <div class="grid">
       <div class="stat big"><div class="l">إجمالي المشتركين</div><div class="n" id="total">…</div></div>
       <div class="stat"><div class="l">اليوم</div><div class="n" id="today">…</div></div>
@@ -121,12 +141,13 @@ textarea{min-height:70px;resize:vertical}
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-import { getFirestore, collection, query, where, orderBy, limit, getDocs, getCountFromServer, Timestamp, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { getFirestore, collection, query, where, orderBy, limit, getDocs, getCountFromServer, Timestamp, deleteDoc, doc, addDoc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 const app = initializeApp(PN_CONFIG.firebase);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const subs = collection(db, 'subscribers');
+const camps = collection(db, 'campaigns');
 const $ = (id) => document.getElementById(id);
 
 const PLAT = { android: 'أندرويد', ios: 'آيفون', desktop: 'كمبيوتر' };
@@ -142,7 +163,35 @@ function since(days) {
   return Timestamp.fromDate(d);
 }
 
+// ---------- نتائج الإشعارات المرسلة ----------
+async function loadCampaigns() {
+  try {
+    const snap = await getDocs(query(camps, orderBy('created', 'desc'), limit(20)));
+    const list = [];
+    snap.forEach((d) => list.push({ id: d.id, ...d.data() }));
+    const rows = await Promise.all(list.map(async (c) => {
+      const [dl, cl] = await Promise.all([
+        count(collection(db, 'campaigns', c.id, 'delivered')).catch(() => null),
+        count(collection(db, 'campaigns', c.id, 'clicks')).catch(() => null)
+      ]);
+      const sent = typeof c.ok === 'number' ? c.ok : null;
+      const date = c.created ? c.created.toDate().toLocaleString('ar-TN', { dateStyle: 'short', timeStyle: 'short' }) : '...';
+      const n = (v) => v === null ? '-' : v.toLocaleString('ar-TN');
+      const rate = sent && cl !== null ? Math.round(cl / sent * 100) + '%' : '-';
+      return `<tr><td><div class="t" title="${esc(c.title || '')}">${esc(c.title || '-')}</div><div class="d">${date}</div></td>` +
+        `<td class="num">${n(sent)}</td><td class="num">${n(dl)}</td><td class="num">${n(cl)}</td><td class="num"><span class="rate">${rate}</span></td></tr>`;
+    }));
+    $('camp-rows').innerHTML = rows.join('') || '<tr><td colspan="5">لم ترسل أي إشعار بعد التحديث. الإشعارات القادمة ستظهر هنا.</td></tr>';
+  } catch (e) {
+    console.log(e);
+    $('camp-rows').innerHTML = '<tr><td colspan="5">' + (e.code === 'permission-denied'
+      ? 'حدّث قواعد Firestore (Rules) أولًا حتى تظهر النتائج.'
+      : 'خطأ: ' + esc(e.code || e.message)) + '</td></tr>';
+  }
+}
+
 async function load() {
+  loadCampaigns();
   try {
     const [total, today, week, month, an, io, de] = await Promise.all([
       count(subs),
@@ -332,11 +381,19 @@ $('send').onclick = async () => {
   if (!tokens.length) { status('لا يوجد مشتركون بعد', false); btn.disabled = false; return; }
   if (!confirmBox(tokens.length)) { btn.disabled = false; status(''); return; }
 
+  // سجل جديد لهذا الإشعار لحساب من وصله ومن ضغط عليه
+  let camp = null;
+  try {
+    camp = await addDoc(camps, { title: title, body: body, url: url, image: image, created: serverTimestamp(), total: tokens.length });
+  } catch (e) { console.log('campaigns', e); }
+
   const notification = { title: title, body: body };
   if (image) notification.image = image;
+  const data = { url: url };
+  if (camp) data.nid = camp.id;
   const msg = {
     notification: notification,
-    data: { url: url },
+    data: data,
     webpush: {
       headers: { Urgency: 'high', TTL: '86400' },
       notification: { icon: location.origin + '/icon.png', badge: location.origin + '/badge.png', dir: 'rtl', lang: 'ar' },
@@ -366,9 +423,11 @@ $('send').onclick = async () => {
   }
   try {
     await Promise.all(Array.from({ length: Math.min(10, tokens.length) }, worker));
+    if (camp) { await updateDoc(camp, { ok: ok, dead: dead, fail: fail }).catch(() => {}); loadCampaigns(); }
     status('✅ تم الإرسال إلى ' + ok + ' مشترك' + (dead ? ' — حُذف ' + dead + ' مشترك ألغى الإشعارات' : '') + (fail ? ' — فشل ' + fail : ''), true);
     if (dead) load();
   } catch (e) {
+    if (camp) updateDoc(camp, { ok: ok, dead: dead, fail: tokens.length - ok - dead }).catch(() => {});
     try { sessionStorage.removeItem('fcm_at'); } catch (x) {}
     status('❌ لا توجد صلاحية الإرسال (' + (e.code || '') + '). اضغط «إرسال الآن» مرة أخرى وسجّل الدخول.', false);
   }
