@@ -68,8 +68,12 @@
   var guideEl = null;
   function showGuide(onClose){
     if (guideEl) return;
-    /* مكان زر «السماح» في شريط Chrome: يمين إذا كانت لغة الهاتف غير عربية، يسار إذا كانت عربية */
-    var left = /^(ar|fa|he|ur)/i.test(navigator.language || '');
+    /* مكان نافذة «السماح» في Chrome:
+       - الهاتف: يمين إذا كانت لغة الهاتف غير عربية، يسار إذا كانت عربية
+       - الكمبيوتر: النافذة تخرج من أيقونة يسار عنوان الموقع (يسار)، إلا إذا كانت واجهة Chrome بالعربية (يمين) */
+    var rtlUI = /^(ar|fa|he|ur)/i.test(navigator.language || '');
+    var left = isMobile() ? rtlUI : !rtlUI;
+    var where = isMobile() ? 'في أعلى الشاشة' : ('في أعلى ' + (left ? 'يسار' : 'يمين') + ' الشاشة');
     var css = document.createElement('style');
     css.id = 'rpgCss';
     css.textContent =
@@ -104,7 +108,7 @@
     guideEl.innerHTML =
       '<div class="dim"></div><div class="glow"></div>' +
       '<svg class="arr" viewBox="0 0 180 300"><path class="d" d="M40 290 C 60 200, 150 170, 150 40"/><path class="h" d="M122 52 L150 22 L178 52"/></svg>' +
-      '<div class="msg">للسماح، اضغط على <b>«السماح»</b> في أعلى الشاشة</div>' +
+      '<div class="msg">للسماح، اضغط على <b>«السماح»</b> ' + where + '</div>' +
       '<div class="sheet"><button class="x" type="button" aria-label="إغلاق">✕</button>' +
         '<p class="site">' + G_SITE + '</p>' +
         '<h3>' + G_TITLE + '</h3>' +
@@ -120,6 +124,46 @@
     var g = guideEl; guideEl = null;
     g.className = '';
     setTimeout(function(){ g.remove(); var c = document.getElementById('rpgCss'); if (c) c.remove(); }, 400);
+  }
+
+  function isMobile(){
+    try { if (navigator.userAgentData && typeof navigator.userAgentData.mobile === 'boolean') return navigator.userAgentData.mobile; } catch(e){}
+    return /Android|Mobi|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  }
+
+  /* الإشعارات محظورة: شرح فكّ الحظر من أيقونة إعدادات الموقع (مرة كل 14 يوماً) */
+  function blockedCard(){
+    var k = 'rp_blk', last = 0;
+    try{ last = +localStorage.getItem(k) || 0; }catch(e){}
+    if (!force && Date.now() - last < 14 * 864e5) return;
+    var side = (/^(ar|fa|he|ur)/i.test(navigator.language || '')) ? 'يمين' : 'يسار';
+    var steps = isMobile()
+      ? '<li>اضغط على الأيقونة <span class="k">⚙</span> بجانب عنوان الموقع في الأعلى</li><li>اختر <span class="k">الأذونات</span> ثم <span class="k">الإشعارات</span></li><li>فعّل <span class="k">السماح</span> ثم أعد تحميل الصفحة</li>'
+      : '<li>اضغط على الأيقونة <span class="k">⚙</span> على ' + side + ' عنوان الموقع في الأعلى</li><li>بجانب <span class="k">الإشعارات</span> اختر <span class="k">السماح</span></li><li>أعد تحميل الصفحة</li>';
+    setTimeout(function(){
+      var c = document.createElement('style');
+      c.textContent =
+        '#rpBlk{position:fixed;left:10px;right:10px;bottom:-400px;max-width:460px;margin:0 auto;z-index:2147483646;direction:rtl;background:rgba(255,255,255,.72);-webkit-backdrop-filter:blur(22px) saturate(1.8);backdrop-filter:blur(22px) saturate(1.8);border:1px solid rgba(255,255,255,.7);color:#111;' +
+        'border-radius:24px;box-shadow:0 10px 40px rgba(0,0,0,.28);padding:20px 18px calc(16px + env(safe-area-inset-bottom));font-family:-apple-system,Roboto,"Segoe UI",Tahoma,Arial,sans-serif;transition:bottom .4s ease}' +
+        '#rpBlk.on{bottom:10px}' +
+        '#rpBlk h4{margin:0 0 6px;font-size:17px;font-weight:800}' +
+        '#rpBlk p{margin:0 0 10px;font-size:14px;color:#333;line-height:1.6}' +
+        '#rpBlk ol{margin:0;padding:0 20px 0 0;font-size:14.5px;line-height:2}' +
+        '#rpBlk .k{display:inline-block;padding:0 6px;border-radius:6px;background:#eaf2fb;color:#0a66c2;font-weight:700}' +
+        '#rpBlk .x{position:absolute;top:10px;left:12px;width:30px;height:30px;border:0;border-radius:50%;background:#f1f3f6;color:#555;font-size:15px;padding:0;cursor:pointer}' +
+        '@media (prefers-color-scheme:dark){#rpBlk{background:rgba(28,31,40,.6);border-color:rgba(255,255,255,.12);color:#eee}#rpBlk p{color:#aaa}#rpBlk .k{background:#263445;color:#7cc4ff}#rpBlk .x{background:#2a2f39;color:#ccc}}';
+      document.head.appendChild(c);
+      var d = document.createElement('div'); d.id = 'rpBlk';
+      d.innerHTML = '<button class="x" type="button" aria-label="إغلاق">✕</button>' +
+        '<h4>🔕 الإشعارات محظورة لهذا الموقع</h4>' +
+        '<p>لتصلك أخبار رفراف والطقس، فكّ الحظر هكذا:</p><ol>' + steps + '</ol>';
+      document.body.appendChild(d);
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ d.className = 'on'; }); });
+      d.querySelector('.x').onclick = function(){
+        try{ localStorage.setItem(k, String(Date.now())); }catch(e){}
+        d.className = ''; setTimeout(function(){ d.remove(); c.remove(); }, 450);
+      };
+    }, force ? 300 : 4000);
   }
 
   function isIOS(){ var ua = navigator.userAgent; return /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
@@ -204,7 +248,7 @@
       else if (inf !== has) loadLibs().then(function(){ return pnSaveInfo(firebase.firestore(), has); }).catch(function(){});
       return;
     }
-    if (Notification.permission === 'denied') return;
+    if (Notification.permission === 'denied') { if (!isMobile()) blockedCard(); return; }
 
     var st = get();
     if (!force && st.later && Date.now() - st.later < 86400000) return; /* أُغلقت النافذة بدون اختيار → نعيد بعد يوم */
